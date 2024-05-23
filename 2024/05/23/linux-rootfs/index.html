@@ -17,7 +17,7 @@
 
 
 
-<title>开个新坑,自制(仿制)一个ar眼镜 | Cl-P&#39;s blog</title>
+<title>linux rootfs | Cl-P&#39;s blog</title>
 
 
 
@@ -156,7 +156,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        开个新坑,自制(仿制)一个ar眼镜
+        linux rootfs
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -232,7 +232,7 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        开个新坑,自制(仿制)一个ar眼镜
+        linux rootfs
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
@@ -243,18 +243,18 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>1 min</span>
+            <span>3 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>87 words</span>
+            <span>894 words</span>
           </span>
           
             <span class="text-gray-400">·</span>
             <span class="flex items-center gap-1">
               <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/embedded/">embedded</a>
+              <a class="article-category-link" href="/categories/linux/">linux</a>
             </span>
           
         </section>
@@ -264,18 +264,18 @@
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
     <blockquote>
-<p>起因:在b站上看到有up自制ar眼镜的视频 心血来潮也想做一个, 主要实现边走路边看番的功能</p>
+<p>因为项目要用到buildroot, 其中涉及到文件系统,所以看看rootfs什么的到底是什么东西</p>
 </blockquote>
-<h3 id="材料"><a href="#材料" class="headerlink" title="材料"></a>材料</h3><ul>
-<li>嘉立创泰山派</li>
-<li>一个0.7寸 ecx335af超小屏幕</li>
-<li>一个光学棱镜</li>
-<li>双头micro hdmi线</li>
-<li>micro usb线</li>
-<li>电池(还没选好)</li>
-</ul>
-<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>进度基本为0</p>
-<p>TO BE CONTINUED……</p>
+<h3 id="文件系统是什么"><a href="#文件系统是什么" class="headerlink" title="文件系统是什么"></a>文件系统是什么</h3><p>文件系统是操作系统提供的一系列’存取存储设备上数据并抽象为文件’的方法。也就是用来组织管理文件的。<br>文件系统可以分为：<br>    + 基于磁盘的文件系统<br>    + 内存文件系统（有时称临时文件系统）<br>    + 闪存文件系统<br>linux中的文件分别存放到不同（物理）介质中。（这可能是‘一切皆文件’的由来？)</p>
+<p>ext4、ntfs、xfs等是基于磁盘的，procfs、tmpfs、sysfs等是基于内存的， fat32、exfat等是基于闪存的。</p>
+<h5 id="根目录下挂载了哪些文件系统："><a href="#根目录下挂载了哪些文件系统：" class="headerlink" title="根目录下挂载了哪些文件系统："></a>根目录下挂载了哪些文件系统：</h5><p>执行<code>find / -maxdepth 2 -type d -exec sh -c &#39;echo &quot;$(df -T &quot;&#123;&#125;&quot; | tail -1 | awk &quot;&#123;print \$2&#125;&quot;) : &#123;&#125;&quot;&#39; \; </code><br>得到如下结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">xfs : /</span><br><span class="line">xfs : /boot</span><br><span class="line">xfs : /var</span><br><span class="line">devtmpfs : /dev</span><br><span class="line">tmpfs : /run</span><br><span class="line">xfs : /etc</span><br><span class="line">tmpfs : /tmp</span><br><span class="line">sysfs : /sys</span><br><span class="line">proc : /proc</span><br><span class="line">xfs : /usr</span><br><span class="line">ext4 : /home</span><br><span class="line">xfs : /mnt</span><br><span class="line">xfs : /opt</span><br><span class="line">xfs : /root</span><br><span class="line">xfs : /srv</span><br><span class="line">xfs : /media</span><br></pre></td></tr></table></figure>
+<p>以上列出了linux根目录下的文件系统。 这里可以看到根目录使用了xfs, 还挂载了其他文件系统。<br><strong>这里根目录并不是根文件系统，根目录使用的xfs类型是linux启动运行完毕后另外加载的另一个文件系统，是基于磁盘的。详见以下rootfs介绍</strong></p>
+<h3 id="rootfs是什么"><a href="#rootfs是什么" class="headerlink" title="rootfs是什么"></a>rootfs是什么</h3><p>顾名思义是根文件系统（废话），具体来说是基于内存的fs。rootfs不算是procfs、tmpfs等，而是一种独立的文件系统。也有说是一种特殊的tempfs？没有读过源码，猜测这种分界线是模糊的。并且也不用在意究竟是哪种具体的类型。<br>rootfs用于在计算机启动后，挂载其他（用于初始化的）必要的文件系统到根目录下（注意这里仍然是基于内存的），比如initramfs、initrd等。<br>initrd是早期的ram磁盘映像，现在已被弃用，改为使用initramfs。<br>initramfs是一个^<a href="%E7%94%A8%E4%BA%8E%E5%88%9B%E5%BB%BA%E5%92%8C%E6%8F%90%E5%8F%96%E5%BD%92%E6%A1%A3%E6%96%87%E4%BB%B6%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%92%8Ctar%E7%B1%BB%E4%BC%BC">cpio</a>格式的归档，用于存放内核的初始化代码。设置initramfs的过程也是在bootloader时期完成的。详见以下加载rootfs的过程。</p>
+<h3 id="加载rootfs的过程"><a href="#加载rootfs的过程" class="headerlink" title="加载rootfs的过程"></a>加载rootfs的过程</h3><p>计算机启动后,bootloader读取配置文件,其中包含内核位置、根文件系统位置等。<br>一般bootloader选择grub。<br>以下是我的grub.cfg的一部分：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 启动选项</span><br><span class="line">menuentry &#x27;Arch Linux&#x27; --class arch --class gnu-linux --class gnu --class os $menuentry_id_option &#x27;gnulinux-simple-bcd9e201-bbf1-4c49-b249-c78cb29ec1fc&#x27; &#123;</span><br><span class="line">	load_video // 加载视频驱动程序，用于图形显示</span><br><span class="line">	insmod gzio // 加载gzip，用于解压缩内核和initramfs</span><br><span class="line">	insmod part_gpt // 加载gpt分区模块，用于读取磁盘分区。</span><br><span class="line">	insmod xfs // 加载xfs模块，以支持xfs文件系统</span><br><span class="line">	search --no-floppy --fs-uuid --set=root bcd9e201-bbf1-4c49-b249-c78cb29ec1fc // 通过uuid查找根文件系统的分区，并将其设为根文件系统</span><br><span class="line">	linux	/boot/vmlinuz-linux root=UUID=bcd9e201-bbf1-4c49-b249-c78cb29ec1fc rw  loglevel=3 // 加载Linux内核，并挂载根文件系统</span><br><span class="line">	echo	&#x27;Loading initial ramdisk ...&#x27;</span><br><span class="line">	initrd	/boot/amd-ucode.img /boot/initramfs-linux.img // 加载amd微码和initramfs。微码是amd或intel等制造商发布的处理器补丁。详见[archwiki](https://wiki.archlinux.org/title/microcode)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>grub负责挂载根文件系统，随后告诉内核initramfs镜像在内存中的位置。这里执行<code>sudo file /boot/initramfs-linux.img</code> 发现其实就是cpio归档。<br>之后内核将initramfs释放到rootfs中，执行一些初始化代码（略）。</p>
+<p>初始化后 内核将文件系统切换为基于硬盘的文件系统，也就是我们看到的xfs了。</p>
 
   </article>
   <!-- tag -->
@@ -283,15 +283,7 @@
     
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/rust/">rust</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/arm/">arm</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/embedded/">embedded</a>
+          <a href="/tags/linux/">linux</a>
         </span>
       
     
@@ -300,16 +292,11 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/05/23/linux-rootfs/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          linux rootfs
-        </a>
-      
     </div>
     <div>
       
-        <a href="/2024/05/23/hello-world/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          Hello World
+        <a href="/2024/05/23/%E5%BC%80%E4%B8%AA%E6%96%B0%E5%9D%91-%E8%87%AA%E5%88%B6-%E4%BB%BF%E5%88%B6-%E4%B8%80%E4%B8%AAar%E7%9C%BC%E9%95%9C/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          开个新坑,自制(仿制)一个ar眼镜
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

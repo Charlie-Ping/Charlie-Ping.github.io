@@ -254,7 +254,7 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>24 words</span>
+            <span>57 words</span>
           </span>
           
             <span class="text-gray-400">·</span>
@@ -272,6 +272,15 @@
     <h3 id="进程是什么"><a href="#进程是什么" class="headerlink" title="进程是什么"></a>进程是什么</h3><p>可以理解成加了pid和父子关系的<em>任务</em></p>
 <p>待施工….</p>
 
+<div id="gitalk-container"></div>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+		<script>
+		var gitalkConfig = {"clientID":"Ov23licLrphI3cx5FIGk","clientSecret":"685634a34495eca0c6f8cd574f38a567a7d11ee2","repo":"Charlie-Ping.github.io","owner":"Charlie-Ping","admin":["Charlie-Ping"],"distractionFreeMode":false};
+	    gitalkConfig.id = md5(location.pathname);
+		var gitalk = new Gitalk(gitalkConfig);
+	    gitalk.render("gitalk-container");
+	    </script>
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
@@ -306,15 +315,11 @@
       
     </div>
   </div>
-  <!-- gitalk -->
-  {% if theme.git_talk.enabled and not is_index %}
-    <div>{% include 'git-talk.swig' %}</div>
-  {% endif %}
-  <!-- comment
+  <!-- comment -->
   <div class="article-comments mt-12">
     
 
-  </div> -->
+  </div>
 </section>
 <!-- js inspect -->
 
@@ -432,7 +437,7 @@
   <!-- copyright -->
   <div class="flex items-center gap-2">
     <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
+    <span>© 2024</span>
     <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
     <a href="https://github.com/Charlie-Ping" target="_blank" rel="noopener noreferrer">Charlie-Ping</a>
   </div>

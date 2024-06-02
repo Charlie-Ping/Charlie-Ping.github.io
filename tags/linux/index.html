@@ -251,26 +251,6 @@
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              上次尝试硬解失败了,拿软解暂时应付了过去.
-这次看看硬解怎么搞
-剧透:仍以失败告终
-
-本篇安装的包
-gdb 10MB
-binutils 30MB
-
-正文
-开发板部分,跑的是debian10.
-
-因为开发板自带的eMMC空间有限, 我选择先把/usr/local挂载到tf卡里.
-sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
-然后apt update&apt upgrade一下, 就可以准备开发工作了.
-
-准备用rust slint框架写ui, 最好不依赖窗口管理器, 毕竟暂时只跑一个窗口.
-(但是像x11这样的显示服务器还
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 31
@@ -291,21 +271,6 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              在写rcore 选择内核栈的分配问题时 了解到有这种漏洞.
-感觉内容挺多,就另外开个文章了
-
-
-
-
-前置知识:指令流水线
-先了解一下现代处理器的推测执行:
-
-引用^wiki
-推测执行（亦作预测执行、投机性执行，英语：Speculative execution）是优化技术的一类，采用这个技术的计算机系统会根据现有信息，利用空转时间提前执行一些将来可能用得上，也可能用不上的指令。如果指令执行完成后发现用不上，系统会抛弃计算结果，并回退执行期间造成的副作用（如缓存）。
-推测执行的目标是在处理器系统资源过剩的情况下并行处理其他任务，实际上电脑处理器在工作中，闲置性能的这种情况还不少。因此为了充分运用效
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 29
@@ -325,24 +290,6 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              想尝试下slint框架在我的aarch64开发板上的运行效果,
-在笔记本上正常编译, 但不出意料地在开发板上运行不起来,寄了
-
-我的笔记本上的交叉编译链的glibc版本是比开发板上的要高的,所以会出现不兼容的问题.
-(如果比开发板的版本低应该是不会出现问题的)
-
-所以在运行时提示环境缺少glibc2.29及以上很多个版本.
-我寻思只要安装上这些版本就好了吧
-
-经过源码编译安装一顿操作
-2.29版本编译(开发板上编译一次要20多分钟 受不了了)后是正常安装,
-到了2.32开始编译时出现了 卡在编译一个文件上一直循环的问题….
-
-遂放弃,转而思索另一种方法.
-升不了板子上的glibc版本,我可以降
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -375,7 +322,7 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
   <!-- copyright -->
   <div class="flex items-center gap-2">
     <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
+    <span>© 2024</span>
     <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
     <a href="https://github.com/Charlie-Ping" target="_blank" rel="noopener noreferrer">Charlie-Ping</a>
   </div>

@@ -246,22 +246,6 @@
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              市面上有比较便宜的高清且迷你的mipi协议的屏,可以用于ar/mr开发.
-虽然我最终还是选择了hdmi协议的屏(图省事),但是学了不能白学,就放在这里充实一下博客吧.
-仅作为个人笔记
-
-DSI: 显示串行接口
- * D-PHY
- * DPI, Display Pixel Interface
- * DBI, Display Bus Interface
- * DCS, Display Command Set
-
-D-PHY
-传输模式
- * 高速模式HS * HS: 差分信号^[差分信号:两线电压差表示数据.低压摆,输出电压的变化速率低,避免失真](D+, D-. 一对线缆算一道数据).传输速率80M
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           6月 01
@@ -281,13 +265,6 @@ D-PHY
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              进程是什么
-可以理解成加了pid和父子关系的任务
-
-待施工….
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -309,26 +286,6 @@ D-PHY
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              上次尝试硬解失败了,拿软解暂时应付了过去.
-这次看看硬解怎么搞
-剧透:仍以失败告终
-
-本篇安装的包
-gdb 10MB
-binutils 30MB
-
-正文
-开发板部分,跑的是debian10.
-
-因为开发板自带的eMMC空间有限, 我选择先把/usr/local挂载到tf卡里.
-sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
-然后apt update&apt upgrade一下, 就可以准备开发工作了.
-
-准备用rust slint框架写ui, 最好不依赖窗口管理器, 毕竟暂时只跑一个窗口.
-(但是像x11这样的显示服务器还
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 31
@@ -348,29 +305,6 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              在了解幽灵漏洞的时候看到了这个词, 查了一下原来就是恶意控制程序执行流.
-正好有个朋友也在研究这些东西, 如果我不知道岂不是连人家的博客都看不懂
-本文仅用作个人大概了解,可能有误.参考资料主要来源于wiki,gpt和下文中的链接.
-
-词典
- * gadgets: 以ret结尾的指令序列.
- * payload: 攻击者在溢出缓冲区时注入的恶意代码或数据.
-
-分类
- * ret2text
- * ret2shellcode
- * ret2syscall
- * ret2libc
- * ret2dl_resolve
- * ret2VDSO
- * SROP
- * BROP
-
-如何绕过canary
-^参考
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -392,21 +326,6 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              在写rcore 选择内核栈的分配问题时 了解到有这种漏洞.
-感觉内容挺多,就另外开个文章了
-
-
-
-
-前置知识:指令流水线
-先了解一下现代处理器的推测执行:
-
-引用^wiki
-推测执行（亦作预测执行、投机性执行，英语：Speculative execution）是优化技术的一类，采用这个技术的计算机系统会根据现有信息，利用空转时间提前执行一些将来可能用得上，也可能用不上的指令。如果指令执行完成后发现用不上，系统会抛弃计算结果，并回退执行期间造成的副作用（如缓存）。
-推测执行的目标是在处理器系统资源过剩的情况下并行处理其他任务，实际上电脑处理器在工作中，闲置性能的这种情况还不少。因此为了充分运用效
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 29
@@ -426,36 +345,6 @@ sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              这篇看看怎么实现基于地址空间的分时多任务
-其实也就是把原书的东西搬过来
-
-os从bios,bootloader或sbi什么的启动之后,是没有开启分页模式的.
-我们在内核初始化时,手动开启分页模式:
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-
-
-lazy_static! {
-    pub static ref KERNEL_SPACE: Arc<UPSafeCell<MemorySet>> = Arc::new(unsafe {
-        UPSafeCell::new(MemorySet::new_kernel()
-    )});
-}
-
-pub fn init() {
-   
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -477,32 +366,6 @@ pub fn init() {
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              地址空间由段和页组成. 上一篇实现了页的分配,这篇看看段是怎么实现的.
-
-实现地址空间抽象
-直接引用原文^[https://rcore-os.cn/rCore-Tutorial-Book-v3/chapter4/5kernel-app-spaces.html]的概念:
-
-逻辑段: 一段连续地址的虚拟内存
-实现:
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-
-
-pub struct MapArea {
-    vpn_range: VPNRange, //iter
-    data_frames: BTreeMap<VirtPageNum, FrameTracker>, // b树实现的map,
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 28
@@ -523,37 +386,11 @@ pub struct MapArea {
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
-            <div class="py-2">
-              需要实现
-
- 1. 初始化堆
- 2. malloc/calloc/free
-    ..好像也没什么
-
-rCoreBook里直接用了现成的堆管理器buddy_system_allocator, 不能自己跟着写一个了.
-等有空(基本没空)的时候看看怎么实现一个堆管理器罢
-看了Elegy的博客 大概是说malloc/calloc什么的也是要经过堆管理器的.
-
-地址空间
- * MMU
- * PTE
- * TLB
-
-MMU: 内存管理单元
-CPU取指令取地址之前, 地址经过MMU从虚拟地址转为物理地址
-
-PTE: 页表项
-标志位 + RSW(?) + ppn + 保留位
-
-TLB: 快表.
-缓存一部分
-            </div>
-          
         </p>
         <p class="line-clamp-4">
           5月 27
           ·
-          3 min
+          4 min
         </p>
       </section>
     </a>
@@ -568,24 +405,6 @@ TLB: 快表.
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              想尝试下slint框架在我的aarch64开发板上的运行效果,
-在笔记本上正常编译, 但不出意料地在开发板上运行不起来,寄了
-
-我的笔记本上的交叉编译链的glibc版本是比开发板上的要高的,所以会出现不兼容的问题.
-(如果比开发板的版本低应该是不会出现问题的)
-
-所以在运行时提示环境缺少glibc2.29及以上很多个版本.
-我寻思只要安装上这些版本就好了吧
-
-经过源码编译安装一顿操作
-2.29版本编译(开发板上编译一次要20多分钟 受不了了)后是正常安装,
-到了2.32开始编译时出现了 卡在编译一个文件上一直循环的问题….
-
-遂放弃,转而思索另一种方法.
-升不了板子上的glibc版本,我可以降
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -606,23 +425,6 @@ TLB: 快表.
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
-          
-            <div class="py-2">
-              因为项目要用到buildroot, 其中涉及到文件系统,所以看看rootfs什么的到底是什么东西
-
-文件系统是什么
-文件系统是操作系统提供的一系列’存取存储设备上数据并抽象为文件’的方法。也就是用来组织管理文件的。
-文件系统可以分为：
-+ 基于磁盘的文件系统
-+ 内存文件系统（有时称临时文件系统）
-+ 闪存文件系统
-linux中的文件分别存放到不同（物理）介质中。（这可能是‘一切皆文件’的由来？)
-
-ext4、ntfs、xfs等是基于磁盘的，procfs、tmpfs、sysfs等是基于内存的， fat32、exfat等是基于闪存的。
-
-根目录下挂载了哪些文件系统：
-执行find / -maxd
-            </div>
           
         </p>
         <p class="line-clamp-4">
@@ -653,7 +455,7 @@ ext4、ntfs、xfs等是基于磁盘的，procfs、tmpfs、sysfs等是基于内�
   <!-- copyright -->
   <div class="flex items-center gap-2">
     <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
+    <span>© 2024</span>
     <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
     <a href="https://github.com/Charlie-Ping" target="_blank" rel="noopener noreferrer">Charlie-Ping</a>
   </div>

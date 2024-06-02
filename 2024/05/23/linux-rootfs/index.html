@@ -254,7 +254,7 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>894 words</span>
+            <span>927 words</span>
           </span>
           
             <span class="text-gray-400">·</span>
@@ -283,6 +283,15 @@
 <p>grub负责挂载根文件系统，随后告诉内核initramfs镜像在内存中的位置。这里执行<code>sudo file /boot/initramfs-linux.img</code> 发现其实就是cpio归档。<br>之后内核将initramfs释放到rootfs中，执行一些初始化代码（略）。</p>
 <p>初始化后 内核将文件系统切换为基于硬盘的文件系统，也就是我们看到的xfs了。</p>
 
+<div id="gitalk-container"></div>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+		<script>
+		var gitalkConfig = {"clientID":"Ov23licLrphI3cx5FIGk","clientSecret":"685634a34495eca0c6f8cd574f38a567a7d11ee2","repo":"Charlie-Ping.github.io","owner":"Charlie-Ping","admin":["Charlie-Ping"],"distractionFreeMode":false};
+	    gitalkConfig.id = md5(location.pathname);
+		var gitalk = new Gitalk(gitalkConfig);
+	    gitalk.render("gitalk-container");
+	    </script>
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
@@ -308,15 +317,11 @@
       
     </div>
   </div>
-  <!-- gitalk -->
-  {% if theme.git_talk.enabled and not is_index %}
-    <div>{% include 'git-talk.swig' %}</div>
-  {% endif %}
-  <!-- comment
+  <!-- comment -->
   <div class="article-comments mt-12">
     
 
-  </div> -->
+  </div>
 </section>
 <!-- js inspect -->
 
@@ -434,7 +439,7 @@
   <!-- copyright -->
   <div class="flex items-center gap-2">
     <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
+    <span>© 2024</span>
     <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
     <a href="https://github.com/Charlie-Ping" target="_blank" rel="noopener noreferrer">Charlie-Ping</a>
   </div>

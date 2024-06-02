@@ -249,12 +249,12 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>3 min</span>
+            <span>4 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>986 words</span>
+            <span>1k words</span>
           </span>
           
             <span class="text-gray-400">·</span>
@@ -307,6 +307,15 @@
 <h3 id="map-unmap-VPN-PPN"><a href="#map-unmap-VPN-PPN" class="headerlink" title="map&#x2F;unmap VPN&#x2F;PPN"></a>map&#x2F;unmap VPN&#x2F;PPN</h3><p>也就是绑定和解绑vpn到ppn的映射.<br>建立时,查找每级页表中有没有对应下一级的vpn页表,没有就创建. 然后将物理地址放到第三级页表中.<br>解绑就是清空第三级页表的对应物理地址.</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pub fn map(&amp;mut self, vpn: VirtPageNum, ppn: PhysPageNum, flags: PTEFlags) &#123;</span><br><span class="line">        // 获取页表项</span><br><span class="line">        let pte = self.find_pte_create(vpn).unwrap();</span><br><span class="line">        assert!(!pte.is_valid(), &quot;vpn &#123;:?&#125; is mapped before mapping&quot;, vpn);</span><br><span class="line">        // 更新pte以将一个pte放到页帧中</span><br><span class="line">        *pte = PageTableEntry::new(ppn, flags | PTEFlags::V);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 解绑</span><br><span class="line">    pub fn unmap(&amp;mut self, vpn: VirtPageNum) &#123;</span><br><span class="line">        let pte = self.find_pte(vpn).unwrap();</span><br><span class="line">        assert!(pte.is_valid(), &quot;vpn &#123;:?&#125; is invalid before unmapping&quot;, vpn);</span><br><span class="line">        *pte = PageTableEntry::empty();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
+<div id="gitalk-container"></div>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+		<script>
+		var gitalkConfig = {"clientID":"Ov23licLrphI3cx5FIGk","clientSecret":"685634a34495eca0c6f8cd574f38a567a7d11ee2","repo":"Charlie-Ping.github.io","owner":"Charlie-Ping","admin":["Charlie-Ping"],"distractionFreeMode":false};
+	    gitalkConfig.id = md5(location.pathname);
+		var gitalk = new Gitalk(gitalkConfig);
+	    gitalk.render("gitalk-container");
+	    </script>
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
@@ -341,15 +350,11 @@
       
     </div>
   </div>
-  <!-- gitalk -->
-  {% if theme.git_talk.enabled and not is_index %}
-    <div>{% include 'git-talk.swig' %}</div>
-  {% endif %}
-  <!-- comment
+  <!-- comment -->
   <div class="article-comments mt-12">
     
 
-  </div> -->
+  </div>
 </section>
 <!-- js inspect -->
 
@@ -467,7 +472,7 @@
   <!-- copyright -->
   <div class="flex items-center gap-2">
     <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
+    <span>© 2024</span>
     <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
     <a href="https://github.com/Charlie-Ping" target="_blank" rel="noopener noreferrer">Charlie-Ping</a>
   </div>

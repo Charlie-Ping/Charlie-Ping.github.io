@@ -19,7 +19,7 @@
 
 
 
-<title>AboutMe | Charlie&#39;s chars lie.</title>
+<title>Slint-0 | Charlie&#39;s chars lie.</title>
 
 
 
@@ -158,7 +158,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        AboutMe
+        Slint-0
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -246,7 +246,7 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        AboutMe
+        Slint-0
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
@@ -257,13 +257,19 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>1 min</span>
+            <span>3 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>178 words</span>
+            <span>801 words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/slint/">slint</a>
+            </span>
           
         </section>
       </div>
@@ -271,20 +277,75 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h3 id="我的各种名字的发展史…"><a href="#我的各种名字的发展史…" class="headerlink" title="我的各种名字的发展史…"></a>我的各种名字的发展史…</h3><p>最开始玩mc,取名叫浮萍沉砾.<br>后来简化了一下叫萍砾.</p>
-<p>有一天要注册一个用户只能用英文名,那就取萍砾的英文谐音吧!<br>就叫Charlie Ping了.</p>
-<p>再后来看re0, 开始厨Emilia了.<br>mc游戏名就改成爱蜜莉亚直属骑士了.<br>翻译过来是Emilia’s Knight<br>再简化一下, 就成为Es Knt了.</p>
-<p>END</p>
-<h3 id="成分"><a href="#成分" class="headerlink" title="成分"></a>成分</h3><p>op, 卡拉彼丘(卡p?), Minecraft</p>
-<h3 id="技术栈"><a href="#技术栈" class="headerlink" title="技术栈"></a>技术栈</h3><ul>
-<li>python</li>
-<li>go</li>
-<li>linux</li>
-<li>rust(still learning)</li>
-<li>html&#x2F;css</li>
-<li>vue</li>
+    <h3 id="slint是什么"><a href="#slint是什么" class="headerlink" title="slint是什么"></a>slint是什么</h3><p>一个ui框架,因为依赖是可选的,并且slint可以编译为原生代码.<br>所以甚至可以跑在没有系统的stm32上,<br>非常适合嵌入式.<br>ui部分类似qt写法,后端可以用rust, cpp和js.<br><del>不学qt的主要原因是想用用rust</del></p>
+<blockquote>
+<p>不过slint官网没有中文文档,<br>试过翻译但是效果不尽人意,看过了翻译还会忘掉.<br>所以做做笔记还是有点必要的.<br>有参考机翻,如有疏漏错误,欢迎补充.</p>
+</blockquote>
+<h3 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h3><ul>
+<li>px: 逻辑像素.在任何设备上, px大小相同,看起来的大小也相同. slint会自动根据ppi转换.</li>
+<li>phx: 物理像素. 单纯的几个像素点.</li>
+<li>%: 相对父元素的比例.没有父元素时不能使用.</li>
 </ul>
-<p>这么一想还真是少得可怜呢</p>
+<h3 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h3><p>这里列举一些常用的简单的容器.</p>
+<ul>
+<li>Rectangle: 空盒子,类似html div.</li>
+<li>TouchArea: 可触控区域.</li>
+<li>FocusScope</li>
+<li>Flickable</li>
+<li>VerticalLayout&#x2F;HorizontalLayout: 子项沿垂直&#x2F;水平放置.</li>
+<li>GridLayout：子项放置在由列和行组成的网格中.<ul>
+<li>Row: 为GridLayout的子元素,表示行.</li>
+<li>也可以不用row, 而直接列出所有子元素.会自动排版.</li>
+</ul>
+</li>
+</ul>
+<h3 id="容器的一些通用属性"><a href="#容器的一些通用属性" class="headerlink" title="容器的一些通用属性"></a>容器的一些通用属性</h3><ul>
+<li>min-width: 允许的最小长度.下面三个同理</li>
+<li>min-height</li>
+<li>max-width</li>
+<li>max-height</li>
+<li>preferred-width: 首选大小. 默认为子元素中width较大的那个.</li>
+<li>preferred-height</li>
+<li>spacing: 子项之间的间距</li>
+<li>padding</li>
+<li>[private|public] [in|out|in-out] property &lt;\T&gt; var-name<ul>
+<li>in: 输入参数</li>
+<li>out: 只可由组件修改其值</li>
+<li>in-out: 任意读写</li>
+</ul>
+</li>
+</ul>
+<h3 id="用于布局的属性"><a href="#用于布局的属性" class="headerlink" title="用于布局的属性"></a>用于布局的属性</h3><ul>
+<li>alignment<ul>
+<li>stretch: 尽量拉伸</li>
+<li>start</li>
+<li>end</li>
+<li>center</li>
+<li>space-between: 元素之间留空</li>
+<li>space-around: 元素之间和元素最左端和最右端留空.</li>
+</ul>
+</li>
+<li>horizontal-stretch: int<br>按比例拉伸. 比如三个元素的h-stretch为3, 2, 1,那大小也是等比拉伸.</li>
+</ul>
+<h3 id="循环语法"><a href="#循环语法" class="headerlink" title="循环语法"></a>循环语法</h3><p>上示例更好懂:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for t in [ &quot;Hello&quot;, &quot;World&quot;, &quot;!&quot; ] : Text &#123;</span><br><span class="line">    text: t;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="缺省元素"><a href="#缺省元素" class="headerlink" title="缺省元素"></a>缺省元素</h3><p>可以在容器内使用@children表示从外部传入的组件.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">component BoxWithLabel inherits GridLayout &#123;</span><br><span class="line">    Row &#123; @children &#125;</span><br><span class="line">&#125;</span><br><span class="line">BoxWithLabel &#123;</span><br><span class="line">    Rectangle &#123; background: blue; height: 50px;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="字体"><a href="#字体" class="headerlink" title="字体"></a>字体</h3><p>e.g.<br><code>default-font-family: &quot;Noto Sans&quot;;</code></p>
+<h3 id="副作用和纯函数"><a href="#副作用和纯函数" class="headerlink" title="副作用和纯函数"></a>副作用和纯函数</h3><p>slint中运行时不改变值的函数称为纯函数.<br>基于纯函数的特性,slint可以做到惰性求值.<br>如果不是纯函数则会导致’副作用’,比如改变变量状态.<br>声明purity以标注函数为纯函数:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pure callback foo() -&gt; int;</span><br><span class="line">pure function bar(x: int) -&gt; int &#123; return x + foo(); &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="翻译"><a href="#翻译" class="headerlink" title="翻译"></a>翻译</h3><p>最基本的格式化字符串功能:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">property &lt;string&gt; name;</span><br><span class="line">property &lt;int&gt; score;</span><br><span class="line">Text &#123;</span><br><span class="line">    text: @tr(&quot;Hello, &#123;&#125;&quot;, name);</span><br><span class="line">    text: @tr(&quot;Hello &#123;0&#125;, you have one point&quot; | &quot;Hello &#123;0&#125;, you have &#123;n&#125; point&quot; % score, name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>i18n的部分略</p>
+</blockquote>
+<h3 id="绑定"><a href="#绑定" class="headerlink" title="绑定"></a>绑定</h3><p>单向绑定:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Button &#123;</span><br><span class="line">    property &lt;int&gt; counter: 3;</span><br><span class="line">    clicked =&gt; &#123; self.counter += 3 &#125;</span><br><span class="line">    text: self.counter * 2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>双向绑定:<br>&lt;&#x3D;&gt;两边值始终相等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">in property&lt;brush&gt; rect-color &lt;=&gt; r.background;</span><br><span class="line">in property rect-color2 &lt;=&gt; r.background;</span><br><span class="line">r:= Rectangle &#123;</span><br><span class="line">    width: parent.width;</span><br><span class="line">    height: parent.height;</span><br><span class="line">    background: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <div id="gitalk-container"></div>
 <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
@@ -299,6 +360,20 @@
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
     
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/embedded/">embedded</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/rust/">rust</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/slint/">slint</a>
+        </span>
+      
+    
   </div>
   <!-- prev and next -->
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
@@ -306,6 +381,11 @@
       
     </div>
     <div>
+      
+        <a href="/2024/06/01/mipi%E5%8D%8F%E8%AE%AE%E5%88%9D%E8%AF%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          mipi协议初识
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
       
     </div>
   </div>

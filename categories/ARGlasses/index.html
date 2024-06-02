@@ -17,7 +17,7 @@
 
 
 
-<title>ARGlass_Dev_Log-1 | Cl-P&#39;s blog</title>
+<title>Kategorie: ARGlasses | Cl-P&#39;s blog</title>
 
 
 
@@ -156,7 +156,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        ARGlass_Dev_Log-1
+        
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -214,212 +214,89 @@
 </div>
 
   <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+    
 
 
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
-
-<!-- toc -->
-
-  <!-- tocbot -->
-<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
-
-
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        ARGlass_Dev_Log-1
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2024-06-02</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>2 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>658 words</span>
-          </span>
-          
-        </section>
+<div class="">
+  <h2>Categories-ARGlasses</h2>
+</div>
+<section class="px-6 max-w-prose mx-auto gap-12 grid grid-cols-1">
+  <div class="flex flex-col h-48 items-center justify-center">
+    <h1 class="site-title text-4xl leading-relaxed">
+      Cl-P&#39;s blog
+    </h1>
+    <p class="text-gray-500 mt-2">
+      
+    </p>
+  </div>
+  
+  
+    
+    
+      <div class="relative pointer-events-none">
+        <span class="text-9xl opacity-10 absolute -left-11 -top-6 font-bold">2024</span>
       </div>
-    </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <blockquote>
-<p>上次尝试硬解失败了,拿软解暂时应付了过去.<br>这次看看硬解怎么搞<br><del>剧透:仍以失败告终</del></p>
-</blockquote>
-<h5 id="本篇安装的包"><a href="#本篇安装的包" class="headerlink" title="本篇安装的包"></a>本篇安装的包</h5><p>gdb 10MB<br>binutils 30MB</p>
-<h5 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h5><p>开发板部分,跑的是debian10.</p>
-<p>因为开发板自带的eMMC空间有限, 我选择先把&#x2F;usr&#x2F;local挂载到tf卡里.<br>sudo mount –bind &#x2F;media&#x2F;linaro&#x2F;SD Card&#x2F;usr&#x2F;local &#x2F;usr&#x2F;local<br>然后apt update&amp;apt upgrade一下, 就可以准备开发工作了.</p>
-<p>准备用rust slint框架写ui, 最好不依赖窗口管理器, 毕竟暂时只跑一个窗口.<br>(但是像x11这样的显示服务器还是要有的)</p>
-<p>slint有两种渲染模式:</p>
-<ul>
-<li>Qt (需要5.15及以上版本)</li>
-<li>winit<ul>
-<li>femtovg (gpu, 稳定)</li>
-<li>skia (gpu, 不稳定)</li>
-<li>software (用cpu)</li>
-</ul>
-</li>
-</ul>
-<p>因为我们用的debian镜像 qt只是5.11版本, 不想研究怎么更新, 还是看看远方的winit吧家人们<br>基于software的渲染方式已经在实机成功跑通过, 但是我的泰山派可是有一颗g52 gpu的,不能浪费掉!<br>所以本篇我们尝试跑通femtovg渲染的版本.</p>
-<p>在笔记本上通过动态链接交叉编译scp到开发板上, 出现段错误.<br>gdb一下,提示libGLX.so.0段错误.<br>猜测可能是交叉编译工具链的opengl版本和开发板上的不一致导致的.<br>感觉opengl版本的问题应该不好解决,所以我们试试静态链接:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// config.toml</span><br><span class="line">[target.aarch64-unknown-linux-gnu]</span><br><span class="line">linker = &quot;aarch64-linux-gnu-gcc&quot;</span><br><span class="line">ar = &quot;aarch64-linux-gnu-ar&quot;</span><br><span class="line">rustflags = &quot;-C target-feature=+crt-static&quot;</span><br></pre></td></tr></table></figure>
-<p>编译出来发现还是不能在开发板运行, gdb一下发现虽然我们指定了静态链接,但仍然动态链接到一个ld-linux-aarch64.so.1<br>在开发板上运行<br><code>ldd myapp</code><br>发现链接到的程序用到了2.29和2.3x.<br>众所周知在另一篇博客中我们在开发板上升级2.3x版本的glibc遇到了很复杂的问题, 所以我们这次选择降低工具链的glibc版本.<br><code>sudo downgrade aarch64-linux-gnu-gcc</code><br><code>sudo downgrade aarch64-linux-gnu-glibc</code>降到2.28,再编译一下<br>然后<code>file target/aarch64-unknown-linux-gnu/release/myapp</code>, 还有额外的发现:程序不动态链接到ld-xxx.so了,完全是一个静态链接文件.</p>
-<p>再次尝试运行,更离奇的事情发生了.<br>仅提示段错误,并且进gdb run, gdb直接退出了.</p>
-<p>遂放弃<br>这个问题不解决了,byd</p>
-<blockquote>
-<p>tips<br>如果下次还想尝试的话,我觉得我会选择buildroot自定义吧. debian的东西实在有点旧了.</p>
-</blockquote>
-
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
     
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/linux/">linux</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/embedded/">embedded</a>
-        </span>
-      
+    <a style="--stagger:0" href="/2024/06/01/mipi%E5%8D%8F%E8%AE%AE%E5%88%9D%E8%AF%86/" data-animate>
+      <header>
+        <h2 class="font-bold text-xl">
+          mipi协议初识
+        </h2>
+      </header>
+      <section class="text-gray-400 my-2 text-sm time">
+        <p class="line-clamp-4">
+          
+        </p>
+        <p class="line-clamp-4">
+          6月 01
+          ·
+          2 min
+        </p>
+      </section>
+    </a>
+  
     
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
-      
-        <a href="/2024/05/31/rcore-%E8%BF%9B%E7%A8%8B-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          rcore-进程-1
-        </a>
-      
-    </div>
-    <div>
-      
-        <a href="/2024/05/30/ROP%E5%88%9D%E8%AF%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          ROP初识
-          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
-        </a>
-      
-    </div>
-  </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
     
-
-  </div>
+    <a style="--stagger:1" href="/2024/05/31/ARGlasses-Dev-Log-1/" data-animate>
+      <header>
+        <h2 class="font-bold text-xl">
+          ARGlass_Dev_Log-1
+        </h2>
+      </header>
+      <section class="text-gray-400 my-2 text-sm time">
+        <p class="line-clamp-4">
+          
+        </p>
+        <p class="line-clamp-4">
+          5月 31
+          ·
+          2 min
+        </p>
+      </section>
+    </a>
+  
+    
+    
+    <a style="--stagger:2" href="/2024/05/26/ARGlasses-Dev-Log-0/" data-animate>
+      <header>
+        <h2 class="font-bold text-xl">
+          ARGlass_Dev_Log-0
+        </h2>
+      </header>
+      <section class="text-gray-400 my-2 text-sm time">
+        <p class="line-clamp-4">
+          
+        </p>
+        <p class="line-clamp-4">
+          5月 26
+          ·
+          1 min
+        </p>
+      </section>
+    </a>
+  
 </section>
-<!-- js inspect -->
 
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "dark",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
-
-
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
 
 
   </main>

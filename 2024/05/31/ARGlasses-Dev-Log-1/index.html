@@ -17,7 +17,7 @@
 
 
 
-<title>rcore-内存分配 | Cl-P&#39;s blog</title>
+<title>ARGlass_Dev_Log-1 | Cl-P&#39;s blog</title>
 
 
 
@@ -156,7 +156,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        rcore-内存分配
+        ARGlass_Dev_Log-1
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -232,24 +232,30 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        rcore-内存分配
+        ARGlass_Dev_Log-1
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2024-05-28</time>
+            <time>2024-06-02</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>3 min</span>
+            <span>2 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>986 words</span>
+            <span>658 words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/ARGlasses/">ARGlasses</a>
+            </span>
           
         </section>
       </div>
@@ -257,43 +263,32 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <p>需要实现</p>
-<ol>
-<li>初始化堆</li>
-<li>malloc&#x2F;calloc&#x2F;free<br>..好像也没什么</li>
-</ol>
-<blockquote>
-<p>rCoreBook里直接用了现成的堆管理器buddy_system_allocator, 不能自己跟着写一个了.<br>等有空(基本没空)的时候看看怎么实现一个堆管理器罢<br>看了Elegy的博客 大概是说malloc&#x2F;calloc什么的也是要经过堆管理器的.</p>
+    <blockquote>
+<p>上次尝试硬解失败了,拿软解暂时应付了过去.<br>这次看看硬解怎么搞<br><del>剧透:仍以失败告终</del></p>
 </blockquote>
-<h3 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h3><ul>
-<li>MMU</li>
-<li>PTE</li>
-<li>TLB</li>
+<h5 id="本篇安装的包"><a href="#本篇安装的包" class="headerlink" title="本篇安装的包"></a>本篇安装的包</h5><p>gdb 10MB<br>binutils 30MB</p>
+<h5 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h5><p>开发板部分,跑的是debian10.</p>
+<p>因为开发板自带的eMMC空间有限, 我选择先把&#x2F;usr&#x2F;local挂载到tf卡里.<br>sudo mount –bind &#x2F;media&#x2F;linaro&#x2F;SD Card&#x2F;usr&#x2F;local &#x2F;usr&#x2F;local<br>然后apt update&amp;apt upgrade一下, 就可以准备开发工作了.</p>
+<p>准备用rust slint框架写ui, 最好不依赖窗口管理器, 毕竟暂时只跑一个窗口.<br>(但是像x11这样的显示服务器还是要有的)</p>
+<p>slint有两种渲染模式:</p>
+<ul>
+<li>Qt (需要5.15及以上版本)</li>
+<li>winit<ul>
+<li>femtovg (gpu, 稳定)</li>
+<li>skia (gpu, 不稳定)</li>
+<li>software (用cpu)</li>
 </ul>
-<p>MMU: 内存管理单元<br>CPU取指令取地址之前, 地址经过MMU从虚拟地址转为物理地址</p>
-<p>PTE: 页表项<br>标志位 + RSW(?) + ppn + 保留位</p>
-<p>TLB: 快表.<br>缓存一部分映射,从而加快(跳过)三级映射的过程</p>
-<h3 id="分段内存管理"><a href="#分段内存管理" class="headerlink" title="分段内存管理"></a>分段内存管理</h3><p>将程序所占的内存空间分配到物理内存中<br>或者更细粒度地,将程序分成多个段,不定顺序地分配到物理内存中.(复杂度很高)<br>这种做法没有内碎片,有外碎片</p>
-<h3 id="分页内存管理"><a href="#分页内存管理" class="headerlink" title="分页内存管理"></a>分页内存管理</h3><p>上图更直观<br><img src="https://rcore-os.cn/rCore-Tutorial-Book-v3/_images/page-table.png" alt="分页内存管理"><br>尽量简单地来说:<br>程序和物理内存都有n个大小相同的段,并且有各自的id<br>mmu建立起两种id之间的对应关系.<br>cpu通过虚拟地址访问时, 虚拟地址的前半段为虚拟页号,会被转为物理页号.<br>其后半段是偏移量,这个不用转换.<br><strong>页表内容也是存到内存中的一个页表里的!</strong></p>
-<h3 id="riscv下如何管理内存"><a href="#riscv下如何管理内存" class="headerlink" title="riscv下如何管理内存"></a>riscv下如何管理内存</h3><blockquote>
-<p>这里使用sv39, 即ppn有39位</p>
+</li>
+</ul>
+<p>因为我们用的debian镜像 qt只是5.11版本, 不想研究怎么更新, 还是看看远方的winit吧家人们<br>基于software的渲染方式已经在实机成功跑通过, 但是我的泰山派可是有一颗g52 gpu的,不能浪费掉!<br>所以本篇我们尝试跑通femtovg渲染的版本.</p>
+<p>在笔记本上通过动态链接交叉编译scp到开发板上, 出现段错误.<br>gdb一下,提示libGLX.so.0段错误.<br>猜测可能是交叉编译工具链的opengl版本和开发板上的不一致导致的.<br>感觉opengl版本的问题应该不好解决,所以我们试试静态链接:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// config.toml</span><br><span class="line">[target.aarch64-unknown-linux-gnu]</span><br><span class="line">linker = &quot;aarch64-linux-gnu-gcc&quot;</span><br><span class="line">ar = &quot;aarch64-linux-gnu-ar&quot;</span><br><span class="line">rustflags = &quot;-C target-feature=+crt-static&quot;</span><br></pre></td></tr></table></figure>
+<p>编译出来发现还是不能在开发板运行, gdb一下发现虽然我们指定了静态链接,但仍然动态链接到一个ld-linux-aarch64.so.1<br>在开发板上运行<br><code>ldd myapp</code><br>发现链接到的程序用到了2.29和2.3x.<br>众所周知在另一篇博客中我们在开发板上升级2.3x版本的glibc遇到了很复杂的问题, 所以我们这次选择降低工具链的glibc版本.<br><code>sudo downgrade aarch64-linux-gnu-gcc</code><br><code>sudo downgrade aarch64-linux-gnu-glibc</code>降到2.28,再编译一下<br>然后<code>file target/aarch64-unknown-linux-gnu/release/myapp</code>, 还有额外的发现:程序不动态链接到ld-xxx.so了,完全是一个静态链接文件.</p>
+<p>再次尝试运行,更离奇的事情发生了.<br>仅提示段错误,并且进gdb run, gdb直接退出了.</p>
+<p>遂放弃<br>这个问题不解决了,byd</p>
+<blockquote>
+<p>tips<br>如果下次还想尝试的话,我觉得我会选择buildroot自定义吧. debian的东西实在有点旧了.</p>
 </blockquote>
-<p>satp: 一个64位csr寄存器^[状态和控制寄存器,比如mstatus表示在哪个态, mcause表示异常或中断的原因等.].<br><img src="https://rcore-os.cn/rCore-Tutorial-Book-v3/_images/satp.png" alt="satp字段分布"><br>PPN:根页表所在的物理页号.<br>设置satp来启用分页模式.</p>
-<p>vpn: 27, ppn: 44</p>
-<h3 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h3><p>线性表: 一对一映射,有很大一部分空间被浪费(因为未被使用)</p>
-<p>引入多级页表(比如3级):查找的工作细分到最后一级页表.<br>一级页表的ppn占9位,2^9&#x3D;512,可表示512个次级页表项.<br>一个页表项8B,则一个页表4KiB.</p>
-<hr>
-<h5 id="如何实现多级页表"><a href="#如何实现多级页表" class="headerlink" title="如何实现多级页表?"></a>如何实现多级页表?</h5><p>先实现一个页帧分配器.<br>实现:new, alloc, dealloc(free).</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pub struct StackFrameAllocator &#123;</span><br><span class="line">    current: usize, // [current, end)内的物理页号从未被分配过, cur end表示物理页号</span><br><span class="line">    end: usize,</span><br><span class="line">    recycled: Vec&lt;usize&gt;, // lifo, 保存被回收的物理页号</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>分配时,若recycle中没有已经被回收的页,则尝试分配新的页.<br>回收时,若页号合法,将回收的页号push到recycle中.</p>
-<p>封装一个页帧类型FrameTracker,并为其实现new和Drop:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pub struct FrameTracker &#123;</span><br><span class="line">    pub ppn: PhysPageNum,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl FrameTracker &#123;</span><br><span class="line">    pub fn new(ppn: PhysPageNum) -&gt; Self &#123;</span><br><span class="line">        let bytes_array = ppn.get_bytes_array();</span><br><span class="line">        // 重置页帧</span><br><span class="line">        for i in bytes_array &#123;</span><br><span class="line">            *i = 0;</span><br><span class="line">        &#125;</span><br><span class="line">        Self &#123; ppn &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Drop for FrameTracker &#123;</span><br><span class="line">    fn drop(&amp;mut self) &#123;</span><br><span class="line">        frame_dealloc(self.ppn);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后考虑页表的实现:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pub struct PageTable &#123;</span><br><span class="line">    // 根节点的物理页号</span><br><span class="line">    root_ppn: PhysPageNum, </span><br><span class="line">    // 页表的所有节点,同时也绑定了页帧的生命周期,页帧会随PageTable回收而回收.</span><br><span class="line">    frames: vec::Vec&lt;FrameTracker&gt;, </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>每个页表都存储了其对应的页帧(包括它本身. 前面提到了页表本身的内容也是存到它自身指代的某个页帧里的,这里是放到frames[0]了.)</p>
-<h3 id="map-unmap-VPN-PPN"><a href="#map-unmap-VPN-PPN" class="headerlink" title="map&#x2F;unmap VPN&#x2F;PPN"></a>map&#x2F;unmap VPN&#x2F;PPN</h3><p>也就是绑定和解绑vpn到ppn的映射.<br>建立时,查找每级页表中有没有对应下一级的vpn页表,没有就创建. 然后将物理地址放到第三级页表中.<br>解绑就是清空第三级页表的对应物理地址.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pub fn map(&amp;mut self, vpn: VirtPageNum, ppn: PhysPageNum, flags: PTEFlags) &#123;</span><br><span class="line">        // 获取页表项</span><br><span class="line">        let pte = self.find_pte_create(vpn).unwrap();</span><br><span class="line">        assert!(!pte.is_valid(), &quot;vpn &#123;:?&#125; is mapped before mapping&quot;, vpn);</span><br><span class="line">        // 更新pte以将一个pte放到页帧中</span><br><span class="line">        *pte = PageTableEntry::new(ppn, flags | PTEFlags::V);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 解绑</span><br><span class="line">    pub fn unmap(&amp;mut self, vpn: VirtPageNum) &#123;</span><br><span class="line">        let pte = self.find_pte(vpn).unwrap();</span><br><span class="line">        assert!(pte.is_valid(), &quot;vpn &#123;:?&#125; is invalid before unmapping&quot;, vpn);</span><br><span class="line">        *pte = PageTableEntry::empty();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
   </article>
   <!-- tag -->
@@ -301,11 +296,11 @@
     
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/rcore/">rcore</a>
+          <a href="/tags/linux/">linux</a>
         </span>
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/rust/">rust</a>
+          <a href="/tags/embedded/">embedded</a>
         </span>
       
     
@@ -314,16 +309,16 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/05/28/rcore-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D-2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2024/05/31/rcore-%E8%BF%9B%E7%A8%8B-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          rcore-内存分配(2)
+          rcore-进程-1
         </a>
       
     </div>
     <div>
       
-        <a href="/2024/05/26/%E4%B8%80%E6%AC%A1arm%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          ARGlass_Dev_Log-0
+        <a href="/2024/05/30/ROP%E5%88%9D%E8%AF%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          ROP初识
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

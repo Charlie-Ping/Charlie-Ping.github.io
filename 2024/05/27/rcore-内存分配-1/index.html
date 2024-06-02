@@ -17,7 +17,7 @@
 
 
 
-<title>幽灵和熔断漏洞.md | Cl-P&#39;s blog</title>
+<title>rcore-内存分配-1 | Cl-P&#39;s blog</title>
 
 
 
@@ -156,7 +156,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        幽灵和熔断漏洞.md
+        rcore-内存分配-1
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -232,7 +232,7 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        幽灵和熔断漏洞.md
+        rcore-内存分配-1
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
@@ -243,13 +243,19 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>5 min</span>
+            <span>3 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>1.6k words</span>
+            <span>986 words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/rcore/">rcore</a>
+            </span>
           
         </section>
       </div>
@@ -257,31 +263,43 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <blockquote>
-<p>在写rcore 选择内核栈的分配问题时 了解到有这种漏洞.<br>感觉内容挺多,就另外开个文章了</p>
+    <p>需要实现</p>
+<ol>
+<li>初始化堆</li>
+<li>malloc&#x2F;calloc&#x2F;free<br>..好像也没什么</li>
+</ol>
+<blockquote>
+<p>rCoreBook里直接用了现成的堆管理器buddy_system_allocator, 不能自己跟着写一个了.<br>等有空(基本没空)的时候看看怎么实现一个堆管理器罢<br>看了Elegy的博客 大概是说malloc&#x2F;calloc什么的也是要经过堆管理器的.</p>
 </blockquote>
+<h3 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h3><ul>
+<li>MMU</li>
+<li>PTE</li>
+<li>TLB</li>
+</ul>
+<p>MMU: 内存管理单元<br>CPU取指令取地址之前, 地址经过MMU从虚拟地址转为物理地址</p>
+<p>PTE: 页表项<br>标志位 + RSW(?) + ppn + 保留位</p>
+<p>TLB: 快表.<br>缓存一部分映射,从而加快(跳过)三级映射的过程</p>
+<h3 id="分段内存管理"><a href="#分段内存管理" class="headerlink" title="分段内存管理"></a>分段内存管理</h3><p>将程序所占的内存空间分配到物理内存中<br>或者更细粒度地,将程序分成多个段,不定顺序地分配到物理内存中.(复杂度很高)<br>这种做法没有内碎片,有外碎片</p>
+<h3 id="分页内存管理"><a href="#分页内存管理" class="headerlink" title="分页内存管理"></a>分页内存管理</h3><p>上图更直观<br><img src="https://rcore-os.cn/rCore-Tutorial-Book-v3/_images/page-table.png" alt="分页内存管理"><br>尽量简单地来说:<br>程序和物理内存都有n个大小相同的段,并且有各自的id<br>mmu建立起两种id之间的对应关系.<br>cpu通过虚拟地址访问时, 虚拟地址的前半段为虚拟页号,会被转为物理页号.<br>其后半段是偏移量,这个不用转换.<br><strong>页表内容也是存到内存中的一个页表里的!</strong></p>
+<h3 id="riscv下如何管理内存"><a href="#riscv下如何管理内存" class="headerlink" title="riscv下如何管理内存"></a>riscv下如何管理内存</h3><blockquote>
+<p>这里使用sv39, 即ppn有39位</p>
+</blockquote>
+<p>satp: 一个64位csr寄存器^[状态和控制寄存器,比如mstatus表示在哪个态, mcause表示异常或中断的原因等.].<br><img src="https://rcore-os.cn/rCore-Tutorial-Book-v3/_images/satp.png" alt="satp字段分布"><br>PPN:根页表所在的物理页号.<br>设置satp来启用分页模式.</p>
+<p>vpn: 27, ppn: 44</p>
+<h3 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h3><p>线性表: 一对一映射,有很大一部分空间被浪费(因为未被使用)</p>
+<p>引入多级页表(比如3级):查找的工作细分到最后一级页表.<br>一级页表的ppn占9位,2^9&#x3D;512,可表示512个次级页表项.<br>一个页表项8B,则一个页表4KiB.</p>
 <hr>
-<h3 id="前置知识-指令流水线"><a href="#前置知识-指令流水线" class="headerlink" title="前置知识:指令流水线"></a>前置知识:指令流水线</h3><p>先了解一下现代处理器的<strong>推测执行</strong>:</p>
-<blockquote>
-<p>引用^<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8E%A8%E6%B5%8B%E6%89%A7%E8%A1%8C">wiki</a><br>推测执行（亦作预测执行、投机性执行，英语：Speculative execution）是优化技术的一类，采用这个技术的计算机系统会根据现有信息，利用空转时间提前执行一些将来可能用得上，也可能用不上的指令。如果指令执行完成后发现用不上，系统会抛弃计算结果，并回退执行期间造成的副作用（如缓存）。<br>推测执行的目标是在处理器系统资源过剩的情况下并行处理其他任务，实际上电脑处理器在工作中，闲置性能的这种情况还不少。因此为了充分运用效率，推测执行无处不在。流水处理器的分支预测、数值预测、预读取内存和文件、以及数据库系统的乐观并发控制等机能中都采用到了推测执行。最终可以达到提高整体性能的目的。<br>wiki已经说的很简洁了. 再加以解释, 则为 “在cpu空闲时(有并行能力时) 提前执行可能的分支”. 在这个过程中会用到分支预测器.<br>直接分支: text段中的跳转是一个常量地址<br>间接分支: 用于跳转的地址存储在寄存器里, 需要跳转的时候再取.</p>
-</blockquote>
-<p>还有<strong>乱序执行</strong>:</p>
-<blockquote>
-<p>这种范式通过以下步骤挑选可执行的指令先执行：<br>指令获取。<br>指令被发送到一个指令序列中（也称执行缓冲区或者保留站）。<br>指令将在序列中等待直到它的数据运算对象是可以获取的。然后指令被允许在先进入的（较旧的）指令之前离开序列缓冲区。<br>指令被分配给一个合适的功能单元并由之执行。<br>结果被放到一个序列中。<br>仅当所有在该指令之前的指令都将他们的结果写入寄存器后，这条指令的结果才会被写入寄存器中。这个过程被称为毕业或者退休周期。<br>乱序执行使用其他“可以执行”的指令来填补了时间的空隙，然后再在结束时重新排序运算结果来实现指令的顺序执行中的运行结果。<br>简单来说,就是尽量提前执行需要等待数据的某些指令(在数据就绪后),而不是等待多条指令需要的数据全部就绪后再一一执行.</p>
-</blockquote>
-<hr>
-<h3 id="这里使用的用户栈和内核栈是如何分配的"><a href="#这里使用的用户栈和内核栈是如何分配的" class="headerlink" title="这里使用的用户栈和内核栈是如何分配的"></a>这里使用的用户栈和内核栈是如何分配的</h3><p>在rcore中,所有用户程序产生的内核栈(trap)统一存放到单独的内核态中的地址空间管理.<br>而这里的分配方式是: 让每个应用都有一个包含应用和内核的地址空间，并将其中的逻辑段分为内核和用户两部分，分别映射到内核&#x2F;用户的数据和代码，且分别在 CPU 处于 S&#x2F;U 特权级时访问。这种分配方式产生了熔断和幽灵漏洞.</p>
-<h3 id="熔断-meltdown"><a href="#熔断-meltdown" class="headerlink" title="熔断(meltdown)"></a>熔断(meltdown)</h3><p>基于推测执行(或推测性内存访问)和乱序执行, 实现低权限的进程访问到高权限限制的内存空间(内核空间).<br>指令在执行前,数据会先被加载到缓存中,然后是寄存器.<br>数据将要准备加载到寄存器时,cpu会对数据进行权限检查和地址合法性检查.<br>**但是!**在加载到缓存后,加载到寄存器之前,我们是有途径获取缓存中的数据的.</p>
-<p>cpu在处理非法指令引发的异常的同时时, 也会推测执行一些其他指令, 这时 推测执行 所用到的数据会被加载到缓存中,没有用到的则还在内存里.<br>然后我们可以计算 取内存中某些地址需要的时间. (所用时间较短的地址就是 被刚才的推测执行 预先加载到缓存中的地址)<br>再进一步缩小范围,就可以取到重要信息了.<br>伪代码(by gpt)</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// 假设 sensitive_data 是内核空间中的敏感数据</span><br><span class="line">// 此处的指令会触发异常，因为 user_space_program 没有权限访问 sensitive_data</span><br><span class="line">try &#123;</span><br><span class="line">    char temp = *(char *)sensitive_data;</span><br><span class="line">&#125; catch (exception) &#123;</span><br><span class="line">    // 异常处理代码</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 利用缓存时间差进行旁道攻击</span><br><span class="line">for (addr in potential_addresses) &#123;</span><br><span class="line">    start_timer();</span><br><span class="line">    char value = *(char *)addr;</span><br><span class="line">    stop_timer();</span><br><span class="line">    time_diff = calculate_time();</span><br><span class="line">    </span><br><span class="line">    if (time_diff is short) &#123;</span><br><span class="line">        // 数据在缓存中，意味着 addr 是我们要找的敏感数据</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>主要影响intel和部分amd处理器.</p>
-<h5 id="熔断的解决方法"><a href="#熔断的解决方法" class="headerlink" title="熔断的解决方法"></a>熔断的解决方法</h5><p>软件:<br>linux使用了内核页表隔离方法(kpti&#x2F;kaier).<br>刚开始, linux将用户空间中的内核地址部分 位置随机化, 使内核地址对用户隐匿.<br>熔断漏洞发现后, linux改为完全分离用户空间和内核空间的页表.<br>在进入内核态时，切换到包含内核地址空间的页表。<br>在返回用户态时，切换回仅包含用户空间的页表。</p>
-<p>硬件:<br>没找到具体资料,不过各个硬件厂商有不同程度的修复.</p>
-<h3 id="幽灵"><a href="#幽灵" class="headerlink" title="幽灵"></a>幽灵</h3><p>有多种表现形式. wiki上举了两种.</p>
-<blockquote>
-<p>CVE-2017-5753(边界绕过检查)依赖于运行中的即时编译（JIT）系统，用于Javascript的JIT引擎已被发现存在此漏洞。网站可以读取浏览器中存储的另一个网站的数据，或者浏览器本身的存储器。<br>CVE-2017-5715(分支目标注入).通过影响间接分支预测器的操作方式，攻击者可以让恶意代码被预测性地执行，从而推断数据内容.<br>通过诱导处理器进行错误的推测执行, 加上侧信道攻击, 从而获得敏感数据.<br>可以在不同进程间攻击.</p>
-</blockquote>
-<p>幽灵漏洞更通用,作用于具有分支预测等特性的现代处理器.</p>
+<h5 id="如何实现多级页表"><a href="#如何实现多级页表" class="headerlink" title="如何实现多级页表?"></a>如何实现多级页表?</h5><p>先实现一个页帧分配器.<br>实现:new, alloc, dealloc(free).</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pub struct StackFrameAllocator &#123;</span><br><span class="line">    current: usize, // [current, end)内的物理页号从未被分配过, cur end表示物理页号</span><br><span class="line">    end: usize,</span><br><span class="line">    recycled: Vec&lt;usize&gt;, // lifo, 保存被回收的物理页号</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>分配时,若recycle中没有已经被回收的页,则尝试分配新的页.<br>回收时,若页号合法,将回收的页号push到recycle中.</p>
+<p>封装一个页帧类型FrameTracker,并为其实现new和Drop:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pub struct FrameTracker &#123;</span><br><span class="line">    pub ppn: PhysPageNum,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl FrameTracker &#123;</span><br><span class="line">    pub fn new(ppn: PhysPageNum) -&gt; Self &#123;</span><br><span class="line">        let bytes_array = ppn.get_bytes_array();</span><br><span class="line">        // 重置页帧</span><br><span class="line">        for i in bytes_array &#123;</span><br><span class="line">            *i = 0;</span><br><span class="line">        &#125;</span><br><span class="line">        Self &#123; ppn &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Drop for FrameTracker &#123;</span><br><span class="line">    fn drop(&amp;mut self) &#123;</span><br><span class="line">        frame_dealloc(self.ppn);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后考虑页表的实现:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pub struct PageTable &#123;</span><br><span class="line">    // 根节点的物理页号</span><br><span class="line">    root_ppn: PhysPageNum, </span><br><span class="line">    // 页表的所有节点,同时也绑定了页帧的生命周期,页帧会随PageTable回收而回收.</span><br><span class="line">    frames: vec::Vec&lt;FrameTracker&gt;, </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个页表都存储了其对应的页帧(包括它本身. 前面提到了页表本身的内容也是存到它自身指代的某个页帧里的,这里是放到frames[0]了.)</p>
+<h3 id="map-unmap-VPN-PPN"><a href="#map-unmap-VPN-PPN" class="headerlink" title="map&#x2F;unmap VPN&#x2F;PPN"></a>map&#x2F;unmap VPN&#x2F;PPN</h3><p>也就是绑定和解绑vpn到ppn的映射.<br>建立时,查找每级页表中有没有对应下一级的vpn页表,没有就创建. 然后将物理地址放到第三级页表中.<br>解绑就是清空第三级页表的对应物理地址.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pub fn map(&amp;mut self, vpn: VirtPageNum, ppn: PhysPageNum, flags: PTEFlags) &#123;</span><br><span class="line">        // 获取页表项</span><br><span class="line">        let pte = self.find_pte_create(vpn).unwrap();</span><br><span class="line">        assert!(!pte.is_valid(), &quot;vpn &#123;:?&#125; is mapped before mapping&quot;, vpn);</span><br><span class="line">        // 更新pte以将一个pte放到页帧中</span><br><span class="line">        *pte = PageTableEntry::new(ppn, flags | PTEFlags::V);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 解绑</span><br><span class="line">    pub fn unmap(&amp;mut self, vpn: VirtPageNum) &#123;</span><br><span class="line">        let pte = self.find_pte(vpn).unwrap();</span><br><span class="line">        assert!(pte.is_valid(), &quot;vpn &#123;:?&#125; is invalid before unmapping&quot;, vpn);</span><br><span class="line">        *pte = PageTableEntry::empty();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
   </article>
   <!-- tag -->
@@ -289,7 +307,11 @@
     
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/linux/">linux</a>
+          <a href="/tags/rust/">rust</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/kernel/">kernel</a>
         </span>
       
     
@@ -298,16 +320,16 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/05/30/ROP%E5%88%9D%E8%AF%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2024/05/28/rcore-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D-2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          ROP初识
+          rcore-内存分配-2
         </a>
       
     </div>
     <div>
       
-        <a href="/2024/05/28/rcore-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D-3/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          rcore-内存分配-3
+        <a href="/2024/05/26/ARGlasses-Dev-Log-0/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          ARGlass_Dev_Log-0
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

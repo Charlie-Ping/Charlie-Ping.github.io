@@ -17,7 +17,7 @@
 
 
 
-<title>rcore-内存分配-3.md | Cl-P&#39;s blog</title>
+<title>ARGlass_Dev_Log-0 | Cl-P&#39;s blog</title>
 
 
 
@@ -156,7 +156,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        rcore-内存分配-3.md
+        ARGlass_Dev_Log-0
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -232,7 +232,7 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        rcore-内存分配-3.md
+        ARGlass_Dev_Log-0
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
@@ -243,13 +243,19 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>4 min</span>
+            <span>1 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>1k words</span>
+            <span>329 words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/ARGlasses/">ARGlasses</a>
+            </span>
           
         </section>
       </div>
@@ -257,28 +263,15 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <p>这篇看看怎么实现基于地址空间的分时多任务<br><del>其实也就是把原书的东西搬过来</del></p>
-<p>os从bios,bootloader或sbi什么的启动之后,是没有开启分页模式的.<br>我们在内核初始化时,手动开启分页模式:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">lazy_static! &#123;</span><br><span class="line">    pub static ref KERNEL_SPACE: Arc&lt;UPSafeCell&lt;MemorySet&gt;&gt; = Arc::new(unsafe &#123;</span><br><span class="line">        UPSafeCell::new(MemorySet::new_kernel()</span><br><span class="line">    )&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">pub fn init() &#123;</span><br><span class="line">    heap_allocator::init_heap();</span><br><span class="line">    frame_allocator::init_frame_allocator();</span><br><span class="line">    KERNEL_SPACE.exclusive_access().activate();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="打断一下-思考为什么不把trap段放到用户地址空间管理"><a href="#打断一下-思考为什么不把trap段放到用户地址空间管理" class="headerlink" title="打断一下,思考为什么不把trap段放到用户地址空间管理"></a>打断一下,思考为什么不把trap段放到用户地址空间管理</h3><p>原文:</p>
-<blockquote>
-<p>另外的一种设计思路 B 是：让每个应用都有一个包含应用和内核的地址空间，并将其中的逻辑段分为内核和用户两部分，分别映射到内核&#x2F;用户的数据和代码，且分别在 CPU 处于 S&#x2F;U 特权级时访问。此设计中并不存在一个单独的内核地址空间。<br>设计方式 B 的优点在于： Trap 的时候无需切换地址空间，而在任务切换的时候才需要切换地址空间。相对而言，设计方式B比设计方式A更容易实现，在应用高频进行系统调用的时候，采用设计方式B能够避免频繁地址空间切换的开销，这通常源于快表或 cache 的失效问题。但是设计方式B也有缺点：即内核的逻辑段需要在每个应用的地址空间内都映射一次，这会带来一些无法忽略的内存占用开销，并显著限制了嵌入式平台（如我们所采用的 K210 ）的任务并发数。此外，设计方式 B 无法防御针对处理器电路设计缺陷的侧信道攻击（如 熔断 (Meltdown) 漏洞 ），使得恶意应用能够以某种方式间接“看到”内核地址空间中的数据，使得用户隐私数据有可能被泄露。将内核与地址空间隔离便是修复此漏洞的一种方法。</p>
+    <blockquote>
+<p>想尝试下slint框架在我的aarch64开发板上的运行效果,<br>在笔记本上正常编译, 但不出意料地在开发板上运行不起来,寄了</p>
 </blockquote>
-<h5 id="熔断漏洞是什么"><a href="#熔断漏洞是什么" class="headerlink" title="熔断漏洞是什么?"></a>熔断漏洞是什么?</h5><p>我觉得这里值得开另一篇文章.这里就不细说了.</p>
-<h3 id="跳板"><a href="#跳板" class="headerlink" title="跳板"></a>跳板</h3><p>即在trap后 用于从用户地址空间切换到内核地址空间的一段代码.<br>(或是从内核地址空间到用户的)<br>跳板是在trap段上面的.</p>
-<p>首先要扩展trap, 使其记录程序对应的内核栈:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#[repr(C)]</span><br><span class="line">pub struct TrapContext &#123;</span><br><span class="line">    pub x: [usize; 32],</span><br><span class="line">    pub sstatus: Sstatus,</span><br><span class="line">    pub sepc: usize,</span><br><span class="line">    pub kernel_satp: usize, // 内核页表的起始物理地址</span><br><span class="line">    pub kernel_sp: usize, // 内核栈顶的虚拟地址</span><br><span class="line">    pub trap_handler: usize, // 内核中trap handler入口点的虚拟地址</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后是跳板实现:<br>trampoline放在text顶端:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.text : &#123;</span><br><span class="line">        *(.text.entry)</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        strampoline = .;</span><br><span class="line">        *(.text.trampoline);</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        *(.text .text.*)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>跳板在用户态和内核态中 映射到物理页的方式是相同的.<br>映射实现:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fn map_trampoline(&amp;mut self) &#123;</span><br><span class="line">        // 建立映射</span><br><span class="line">        self.page_table.map(</span><br><span class="line">            VirtAddr::from(TRAMPOLINE).into(),</span><br><span class="line">            PhysAddr::from(strampoline as usize).into(),</span><br><span class="line">            PTEFlags::R | PTEFlags::X,</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="加载和执行应用程序"><a href="#加载和执行应用程序" class="headerlink" title="加载和执行应用程序"></a>加载和执行应用程序</h3><p>这部分主要是对代码打注释</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">pub struct TaskControlBlock &#123;</span><br><span class="line">    pub task_status: TaskStatus, // 任务状态,只是一个枚举</span><br><span class="line">    pub task_cx: TaskContext, // 任务上下文</span><br><span class="line">    pub memory_set: MemorySet, // 此任务的地址空间. </span><br><span class="line">    // 关于地址的管理结构: TaskControlBlock -&gt; MemorySet -&gt; PageTable -&gt; FrameTracker</span><br><span class="line">    pub trap_cx_ppn: PhysPageNum, // Trap上下文所在的物理页号</span><br><span class="line">    pub base_size: usize, // 应用使用了多少内存(不包括堆)</span><br><span class="line">&#125;</span><br><span class="line">impl TaskControlBlock &#123;</span><br><span class="line">    pub fn new(elf_data: &amp;[u8], app_id: usize) -&gt; Self &#123;</span><br><span class="line">        // memory_set with elf program headers/trampoline/trap context/user stack</span><br><span class="line">        let (memory_set, user_sp, entry_point) = MemorySet::from_elf(elf_data); // 获取elf头</span><br><span class="line">        let trap_cx_ppn = memory_set</span><br><span class="line">            .translate(VirtAddr::from(TRAP_CONTEXT).into()) // 找到trap上下文对应的虚拟页表项</span><br><span class="line">            .unwrap()</span><br><span class="line">            .ppn();  // 再找到其物理页</span><br><span class="line">        let task_status = TaskStatus::Ready;</span><br><span class="line">        // 映射一段内核栈</span><br><span class="line">        let (kernel_stack_bottom, kernel_stack_top) = kernel_stack_position(app_id);</span><br><span class="line">        KERNEL_SPACE.exclusive_access().insert_framed_area(</span><br><span class="line">            kernel_stack_bottom.into(),</span><br><span class="line">            kernel_stack_top.into(),</span><br><span class="line">            MapPermission::R | MapPermission::W,</span><br><span class="line">        );</span><br><span class="line">        let task_control_block = Self &#123;</span><br><span class="line">            task_status,</span><br><span class="line">            task_cx: TaskContext::goto_trap_return(kernel_stack_top),</span><br><span class="line">            memory_set,</span><br><span class="line">            trap_cx_ppn,</span><br><span class="line">            base_size: user_sp,</span><br><span class="line">        &#125;;</span><br><span class="line">        // 初始化trap上下文</span><br><span class="line">        let trap_cx = task_control_block.get_trap_cx();</span><br><span class="line">        *trap_cx = TrapContext::app_init_context(</span><br><span class="line">            entry_point,</span><br><span class="line">            user_sp,</span><br><span class="line">            KERNEL_SPACE.exclusive_access().token(), // 内核上下文</span><br><span class="line">            kernel_stack_top, // 内核栈顶</span><br><span class="line">            trap_handler as usize, // trap入口点的虚拟地址</span><br><span class="line">        );</span><br><span class="line">        task_control_block</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>剩下的内容是关于改进的,这里略.</p>
+<p>我的笔记本上的交叉编译链的glibc版本是比开发板上的要高的,所以会出现不兼容的问题.<br>(如果比开发板的版本低应该是不会出现问题的)</p>
+<p>所以在运行时提示环境缺少glibc2.29及以上很多个版本.<br>我寻思只要安装上这些版本就好了吧</p>
+<p>经过源码编译安装一顿操作<br>2.29版本编译(开发板上编译一次要20多分钟 受不了了)后是正常安装,<br>到了2.32开始编译时出现了 卡在编译一个文件上一直循环的问题….</p>
+<p>遂放弃,转而思索另一种方法.<br>升不了板子上的glibc版本,我可以降笔记本上的版本(</p>
+<p>…<br>不出意料地又寄了,这次是seg fault问题.<br>gdb一下发现是opengl出了段错误.<br>opengl也是和glibc打包的,那问题还是glibc对不上.</p>
+<h2 id="不管了-先用软解吧-对应的-要用opengl绘制ui的话算是硬解"><a href="#不管了-先用软解吧-对应的-要用opengl绘制ui的话算是硬解" class="headerlink" title="不管了,先用软解吧! (对应的, 要用opengl绘制ui的话算是硬解)"></a>不管了,先用软解吧! (对应的, 要用opengl绘制ui的话算是硬解)</h2><p>5.27<br>终于能跑出来了. opengl的问题先放一放,去看看rcore罢!</p>
 
   </article>
   <!-- tag -->
@@ -286,11 +279,11 @@
     
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/rcore/">rcore</a>
+          <a href="/tags/linux/">linux</a>
         </span>
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/rust/">rust</a>
+          <a href="/tags/embedded/">embedded</a>
         </span>
       
     
@@ -299,16 +292,16 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/05/29/%E5%B9%BD%E7%81%B5%E5%92%8C%E7%86%94%E6%96%AD%E6%BC%8F%E6%B4%9E-md/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2024/05/27/rcore-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          幽灵和熔断漏洞.md
+          rcore-内存分配-1
         </a>
       
     </div>
     <div>
       
-        <a href="/2024/05/28/rcore-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D-2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          rcore-内存分配(2)
+        <a href="/2024/05/23/linux-rootfs/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          linux rootfs
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

@@ -252,6 +252,29 @@
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
+            <div class="py-2">
+              在了解幽灵漏洞的时候看到了这个词, 查了一下原来就是恶意控制程序执行流.
+正好有个朋友也在研究这些东西, 如果我不知道岂不是连人家的博客都看不懂
+本文仅用作个人大概了解,可能有误.参考资料主要来源于wiki,gpt和下文中的链接.
+
+词典
+ * gadgets: 以ret结尾的指令序列.
+ * payload: 攻击者在溢出缓冲区时注入的恶意代码或数据.
+
+分类
+ * ret2text
+ * ret2shellcode
+ * ret2syscall
+ * ret2libc
+ * ret2dl_resolve
+ * ret2VDSO
+ * SROP
+ * BROP
+
+如何绕过canary
+^参考
+            </div>
+          
         </p>
         <p class="line-clamp-4">
           5月 30
@@ -271,6 +294,23 @@
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
+          
+            <div class="py-2">
+              因为项目要用到buildroot, 其中涉及到文件系统,所以看看rootfs什么的到底是什么东西
+
+文件系统是什么
+文件系统是操作系统提供的一系列’存取存储设备上数据并抽象为文件’的方法。也就是用来组织管理文件的。
+文件系统可以分为：
++ 基于磁盘的文件系统
++ 内存文件系统（有时称临时文件系统）
++ 闪存文件系统
+linux中的文件分别存放到不同（物理）介质中。（这可能是‘一切皆文件’的由来？)
+
+ext4、ntfs、xfs等是基于磁盘的，procfs、tmpfs、sysfs等是基于内存的， fat32、exfat等是基于闪存的。
+
+根目录下挂载了哪些文件系统：
+执行find / -maxd
+            </div>
           
         </p>
         <p class="line-clamp-4">

@@ -251,6 +251,22 @@
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
+            <div class="py-2">
+              市面上有比较便宜的高清且迷你的mipi协议的屏,可以用于ar/mr开发.
+虽然我最终还是选择了hdmi协议的屏(图省事),但是学了不能白学,就放在这里充实一下博客吧.
+仅作为个人笔记
+
+DSI: 显示串行接口
+ * D-PHY
+ * DPI, Display Pixel Interface
+ * DBI, Display Bus Interface
+ * DCS, Display Command Set
+
+D-PHY
+传输模式
+ * 高速模式HS * HS: 差分信号^[差分信号:两线电压差表示数据.低压摆,输出电压的变化速率低,避免失真](D+, D-. 一对线缆算一道数据).传输速率80M
+            </div>
+          
         </p>
         <p class="line-clamp-4">
           6月 01
@@ -271,6 +287,26 @@
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
           
+            <div class="py-2">
+              上次尝试硬解失败了,拿软解暂时应付了过去.
+这次看看硬解怎么搞
+剧透:仍以失败告终
+
+本篇安装的包
+gdb 10MB
+binutils 30MB
+
+正文
+开发板部分,跑的是debian10.
+
+因为开发板自带的eMMC空间有限, 我选择先把/usr/local挂载到tf卡里.
+sudo mount –bind /media/linaro/SD Card/usr/local /usr/local
+然后apt update&apt upgrade一下, 就可以准备开发工作了.
+
+准备用rust slint框架写ui, 最好不依赖窗口管理器, 毕竟暂时只跑一个窗口.
+(但是像x11这样的显示服务器还
+            </div>
+          
         </p>
         <p class="line-clamp-4">
           5月 31
@@ -290,6 +326,24 @@
       </header>
       <section class="text-gray-400 my-2 text-sm time">
         <p class="line-clamp-4">
+          
+            <div class="py-2">
+              想尝试下slint框架在我的aarch64开发板上的运行效果,
+在笔记本上正常编译, 但不出意料地在开发板上运行不起来,寄了
+
+我的笔记本上的交叉编译链的glibc版本是比开发板上的要高的,所以会出现不兼容的问题.
+(如果比开发板的版本低应该是不会出现问题的)
+
+所以在运行时提示环境缺少glibc2.29及以上很多个版本.
+我寻思只要安装上这些版本就好了吧
+
+经过源码编译安装一顿操作
+2.29版本编译(开发板上编译一次要20多分钟 受不了了)后是正常安装,
+到了2.32开始编译时出现了 卡在编译一个文件上一直循环的问题….
+
+遂放弃,转而思索另一种方法.
+升不了板子上的glibc版本,我可以降
+            </div>
           
         </p>
         <p class="line-clamp-4">

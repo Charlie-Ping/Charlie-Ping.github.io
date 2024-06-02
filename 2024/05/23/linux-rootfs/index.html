@@ -308,11 +308,15 @@
       
     </div>
   </div>
-  <!-- comment -->
+  <!-- gitalk -->
+  {% if theme.git_talk.enabled and not is_index %}
+    <div>{% include 'git-talk.swig' %}</div>
+  {% endif %}
+  <!-- comment
   <div class="article-comments mt-12">
     
 
-  </div>
+  </div> -->
 </section>
 <!-- js inspect -->
 

@@ -19,7 +19,7 @@
 
 
 
-<title>rcore-进程-1 | Charlie&#39;s char[] lies here.</title>
+<title>rust-multi-1 | Charlie&#39;s char[] lies here.</title>
 
 
 
@@ -158,7 +158,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        rcore-进程-1
+        rust-multi-1
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -246,30 +246,24 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        rcore-进程-1
+        rust-multi-1
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2024-06-02</time>
+            <time>2024-06-06</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>1 min</span>
+            <span>5 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>57 words</span>
+            <span>1.3k words</span>
           </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/rcore/">rcore</a>
-            </span>
           
         </section>
       </div>
@@ -277,8 +271,56 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h3 id="进程是什么"><a href="#进程是什么" class="headerlink" title="进程是什么"></a>进程是什么</h3><p>可以理解成加了pid和父子关系的<em>任务</em></p>
-<p>待施工….</p>
+    <blockquote>
+<p>上一篇说的主要是同步多进程&#x2F;线程&#x2F;. 这篇学学异步编程.<br>使用第三方库tokio.<br>仅作为个人学习笔记.<br>参考资料:<a target="_blank" rel="noopener" href="https://course.rs/advance-practice/overview.html">https://course.rs/advance-practice/overview.html</a></p>
+</blockquote>
+<p>这本书里通过模仿redis来学习tokio.这篇笔记更多会记一些细节和rust语法, 不记全貌.<br><del>因为学一个库,要再开个项目,真搞心态啊</del></p>
+<h3 id="async-await"><a href="#async-await" class="headerlink" title="async&#x2F;await"></a>async&#x2F;await</h3><p>rust的async&#x2F;await只是一个关键词, 需要配合具体的异步运行时框架才有效,比如tokio.<br>示例代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">use tokio::net::TcpListener;</span><br><span class="line">#[tokio::main]</span><br><span class="line">async fn main() &#123;</span><br><span class="line">    let listener = TcpListener::bind(&quot;127.0.0.1:6379&quot;) // io::Result&lt;TcpListener&gt;</span><br><span class="line">                    .await // a Future</span><br><span class="line">                    .unwrap();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里io::Result实现了Future trait,进而可以.await:<br>pub trait Future {<br>    type Output;</p>
+<pre><code>fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;&#39;_&gt;) -&gt; Poll&lt;Self::Output&gt;;
+</code></pre>
+<p>}</p>
+<p>一个Future表示一个异步函数, 有两个状态:pending和ready.<br>tokio负责管理一个future的状态.<br>poll()负责检查future的状态, 返回Ready或Pending.</p>
+<p>然后为每个连接生成一个任务:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">loop &#123;</span><br><span class="line">    let (socket, _) = listener.accept().await.unwrap();</span><br><span class="line">    tokio::spawn(async move &#123; // socket转移所有权</span><br><span class="line">        process(socket).await;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一个 Tokio 任务是一个异步的绿色线程，它们通过 tokio::spawn 进行创建，该函数会返回一个 JoinHandle 类型的句柄，调用者可以使用该句柄跟创建的任务进行交互。<br>绿色线程是由程序自己调度的, 操作系统不清楚其存在. goroutine也是一种绿色线程.</p>
+</blockquote>
+<h3 id="send-sync"><a href="#send-sync" class="headerlink" title="send&#x2F;sync"></a>send&#x2F;sync</h3><p>Send trait意为可以在线程间安全地移动.<br>实现了Send的类型可以在线程阻塞或被中断时保存上下文,并在恢复线程的时候恢复上下文.<br>例如, Arc实现了Send trait, 而Rc没有, 所以当执行以下代码时会报错:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">use std::rc::Rc;</span><br><span class="line">use tokio::net::&#123;TcpListener, TcpStream&#125;;</span><br><span class="line">use mini_redis::&#123;Connection, Frame&#125;;</span><br><span class="line">#[tokio::main]</span><br><span class="line">async fn main() &#123;</span><br><span class="line">    let listener = TcpListener::bind(&quot;127.0.0.1:6379&quot;).await.unwrap();</span><br><span class="line">    let v = Rc::new(String::from(&quot;asd&quot;));</span><br><span class="line">    loop &#123;</span><br><span class="line">        let (socket, _) = listener.accept().await.unwrap();</span><br><span class="line">        let s = Rc::clone(&amp;v);</span><br><span class="line">        tokio::spawn(async move &#123;</span><br><span class="line">            process(socket).await;</span><br><span class="line">            println!(&quot;&#123;&#125;&quot;, s);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>rust给出了提示:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">error: future cannot be sent between threads safely</span><br><span class="line">   --&gt; src/main.rs:12:22</span><br><span class="line">    |</span><br><span class="line">12  |           tokio::spawn(async move &#123;</span><br><span class="line">    |  ______________________^</span><br><span class="line">13  | |             process(socket).await;</span><br><span class="line">14  | |             println!(&quot;&#123;&#125;&quot;, s);</span><br><span class="line">15  | |         &#125;);</span><br><span class="line">    | |_________^ future created by async block is not `Send`</span><br><span class="line">    |</span><br><span class="line">    = help: within `&#123;async block@src/main.rs:12:22: 15:10&#125;`, the trait `Send` is not implemented for `Rc&lt;String&gt;`, which is required by `&#123;async block@src/main.rs:12:22: 15:10&#125;: Send`</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tokio的Mutex"><a href="#Tokio的Mutex" class="headerlink" title="Tokio的Mutex"></a>Tokio的Mutex</h3><p>引用原文:</p>
+<blockquote>
+<p>Tokio 提供的异步锁只应该在跨多个 .await调用时使用</p>
+<p>锁如果在多个 .await 过程中持有，应该使用 Tokio 提供的锁，<br>原因是 .await的过程中锁可能在线程间转移，若使用标准库的同步锁存在死锁的可能性，例如某个任务刚获取完锁，<br>还没使用完就因为 .await 让出了当前线程的所有权，结果下个任务又去获取了锁，造成死锁<br>锁竞争不多的情况下，使用 std::sync::Mutex<br>锁竞争多，可以考虑使用三方库提供的性能更高的锁，例如 parking_lot::Mutex</p>
+</blockquote>
+<h3 id="分片锁"><a href="#分片锁" class="headerlink" title="分片锁"></a>分片锁</h3><p>可以对HashMap分段, 让锁尽可能变小, 减少竞争.<br><code>type ShardedDB = Arc&lt;Vec&lt;Mutex&lt;HashMap&lt;String, Vec&lt;u8&gt;&gt;&gt;&gt;&gt;;</code></p>
+<h3 id="消息传递"><a href="#消息传递" class="headerlink" title="消息传递"></a>消息传递</h3><p>tokio提供了以下通道,适用于异步场景:</p>
+<ul>
+<li>mpsc 多生产者,单消费者</li>
+<li>oneshot 1c1p</li>
+<li>broadcast NcNp. 每条消息会被广播到所有消费者</li>
+<li>watch 1pNc.</li>
+</ul>
+<p>oneshot也有.send()和.resp(), 不过send不需要await.</p>
+<h3 id="async-io"><a href="#async-io" class="headerlink" title="async io"></a>async io</h3><h5 id="read"><a href="#read" class="headerlink" title="read"></a>read</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let mut f = File::open(&quot;foo.txt&quot;).await?;</span><br><span class="line">let mut buffer = [0; 10];</span><br><span class="line">let n = f.read(&amp;mut buffer[..]).await?;</span><br></pre></td></tr></table></figure>
+<p>read_to_file接收一个<code>&amp;mut Vec&lt;u8&gt;</code></p>
+<p>read_frame 返回一个完整的帧,tcpstream为read_frame实现了一个缓冲区, 每次读取一个帧多余的部分会存到缓冲区里.</p>
+<h5 id="write"><a href="#write" class="headerlink" title="write"></a>write</h5><p>write()接收一个&amp;[u8], 返回写入的字节数.</p>
+<p>不能同时读写一个socket, 需要分离为reader和writer:<br>TcpStream::split需要rd和wr在一个任务中,否则会引发所有权问题.<br>相应的,into_split没有这个限制,但是因为是用Arc实现的,有点性能开销.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let socket = TcpStream::connect(&quot;127.0.0.1:6142&quot;).await?;</span><br><span class="line">let (mut rd, mut wr) = io::split(socket);</span><br></pre></td></tr></table></figure>
+
+<h5 id="Buf和BufMut-trait"><a href="#Buf和BufMut-trait" class="headerlink" title="Buf和BufMut trait"></a>Buf和BufMut trait</h5><p>两种trait, 分别用于读取和写入的缓冲区.</p>
+<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><blockquote>
+<p>同时等待多个计算操作, 当其中一个操作完成时就退出等待.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">use tokio::sync::oneshot;</span><br><span class="line"></span><br><span class="line">#[tokio::main]</span><br><span class="line">async fn main() &#123;</span><br><span class="line">    let (tx1, rx1) = oneshot::channel();</span><br><span class="line">    let (tx2, rx2) = oneshot::channel();</span><br><span class="line"></span><br><span class="line">    tokio::spawn(async &#123;</span><br><span class="line">        let _ = tx1.send(&quot;one&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    tokio::spawn(async &#123;</span><br><span class="line">        let _ = tx2.send(&quot;two&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    tokio::select! &#123;</span><br><span class="line">        val = rx1 =&gt; &#123;</span><br><span class="line">            println!(&quot;rx1 completed first with &#123;:?&#125;&quot;, val);</span><br><span class="line">        &#125;</span><br><span class="line">        val = rx2 =&gt; &#123;</span><br><span class="line">            println!(&quot;rx2 completed first with &#123;:?&#125;&quot;, val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 任何一个 select 分支结束后，都会继续执行接下来的代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>写到这里,我意识我了解到的到对tokio的用法应该已经足够用来写异步io处理了,因此本篇暂时结束.</p>
 
 <div id="gitalk-container"></div>
 <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
@@ -295,10 +337,6 @@
     
       
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/kernel/">kernel</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
           <a href="/tags/rust/">rust</a>
         </span>
       
@@ -308,16 +346,11 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/06/01/mipi%E5%8D%8F%E8%AE%AE%E5%88%9D%E8%AF%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          mipi协议初识
-        </a>
-      
     </div>
     <div>
       
-        <a href="/2024/05/31/ARGlasses-Dev-Log-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          ARGlass_Dev_Log-1
+        <a href="/2024/06/04/rust-multi-0/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          rust-multi-0
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

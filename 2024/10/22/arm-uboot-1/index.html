@@ -19,7 +19,7 @@
 
 
 
-<title>stm32_DMA | Charlie&#39;s char[] lies here.</title>
+<title>arm uboot(1) | Charlie&#39;s char[] lies here.</title>
 
 
 
@@ -158,7 +158,7 @@
         </h2>
       </a>
       <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        stm32_DMA
+        arm uboot(1)
       </div>
       <div class="flex-1"></div>
       <div class="flex items-center gap-3">
@@ -246,30 +246,24 @@
   <header class="overflow-hidden pt-6 pb-6 md:pt-12">
     <div class="pt-4 md:pt-6">
       <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        stm32_DMA
+        arm uboot(1)
       </h1>
       <div>
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2024-09-11</time>
+            <time>2024-10-25</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>1 min</span>
+            <span>3 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>436 words</span>
+            <span>619 words</span>
           </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/embedded/">embedded</a>
-            </span>
           
         </section>
       </div>
@@ -277,20 +271,26 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h3 id="控制器"><a href="#控制器" class="headerlink" title="控制器"></a>控制器</h3><p>DMA1和DMA2两个， 1有7通道， 2有5通道。 每个控制器同一时刻只能接收一个通道。<br>DMA2可以执行存储器到存储器的传输</p>
-<h3 id="使用的寄存器"><a href="#使用的寄存器" class="headerlink" title="使用的寄存器"></a>使用的寄存器</h3><p>SxCR(CCR)： 通道控制.<br>DMA_SxPAR(DMA_CPAR)： DMA外设地址. 从此地址读&#x2F;写外设数据。<br>DMA_SxM0AR(DMA_CMAR)： DMA内存地址。从此地址读&#x2F;写外设数据。<br>DMA_SxM1AR： 双缓冲模式时DMA的另一个地址<br>DMA_NDTR: 计数器，在存储后递减。</p>
-<h3 id="仲裁"><a href="#仲裁" class="headerlink" title="仲裁"></a>仲裁</h3><p>管理DMA请求的优先级，四级。</p>
-<ol>
-<li>在DMA_CCRx设置优先级</li>
-<li>若优先级一样则以通道编号排序， 编号低的优先</li>
-</ol>
-<h3 id="DMA数据流"><a href="#DMA数据流" class="headerlink" title="DMA数据流"></a>DMA数据流</h3><ul>
-<li>常规类型事务</li>
-<li>双缓冲区类型事务：使用存储器的两个存储器指针的双缓冲区传输（当 DMA 正在进行自&#x2F;至缓冲区的读&#x2F;写操作时，应用程序可以进行至&#x2F;自其它缓冲区的写&#x2F;读操作）</li>
-</ul>
-<h3 id="CCR"><a href="#CCR" class="headerlink" title="CCR"></a>CCR</h3><p>DIR: 配置传输方向。 存储器&lt;-&gt;外设 或 存储器&lt;-&gt;存储器<br>PINC&#x2F;MINC： 配置每次传输后指针是否自增<br>PSIZE&#x2F;MSIZE: 存储器或外设的存储宽度。在配置PINC&#x2F;MINC后根据这个大小决定自增多少地址：1（一字节）&#x2F;2（半个字）&#x2F;4（一个字）<br>PINCOS<br>CIRC：使能循环模式<br>DBM： 使能双缓冲模式</p>
-<h3 id="循环模式"><a href="#循环模式" class="headerlink" title="循环模式"></a>循环模式</h3><p>每次传输完成后不触发中断，适合adc采集。<br>或许不适合帧传输</p>
-<h3 id="双缓冲模式"><a href="#双缓冲模式" class="headerlink" title="双缓冲模式"></a>双缓冲模式</h3><p>开启双缓冲时自动开启循环模式<br>DMA控制器轮流向两个存储器存数据。</p>
+    <blockquote>
+<p><a target="_blank" rel="noopener" href="https://dl.xkwy2018.com/downloads/RK3568/RK356X/Hardware/Rockchip_RK3566_Hardware_Design_Guide_V1.1_CN.pdf">rk3566文档</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/CmST0us/tspi-linux-sdk">泰山派linux build sdk</a></p>
+</blockquote>
+<p><del>这部分uboot因为是在内核和rootfs之前编译的 好像暂时没有配置这两个东西的内容?</del></p>
+<h3 id="target"><a href="#target" class="headerlink" title="target"></a>target</h3><p>image-stage1: rk356x_spl_loader_v1.16.112.bin<br>image-stage2: u-boot.bin (FIT)<br>bl31_0x[xxxxxxx]: ATF的六个阶段,0x…地址表示起始执行地址<br>bl31.elf<br>tee.bin:<br>log: output&#x2F;TSPI-RK3566-USER-V10-LINUX&#x2F;{builddate}&#x2F;log&#x2F;</p>
+<h3 id="stage-1"><a href="#stage-1" class="headerlink" title="stage 1"></a>stage 1</h3><p>芯片上电&#x2F;复位后, cpu运行bootrom中的代码, 将stage1 也就是SPL放到sram中<br>执行硬件配置,如时钟和dram初始化, 然后将stage 2的代码加载到sdram中(uboot.bin)</p>
+<blockquote>
+<p>还可以引导FIT镜像和原始img</p>
+</blockquote>
+<h5 id="设备树"><a href="#设备树" class="headerlink" title="设备树"></a>设备树</h5><p>外设的配置文件, 源码-目标: dts:dtb<br>bootloader会在系统启动时将dtb传递给内核</p>
+<h5 id="FIT"><a href="#FIT" class="headerlink" title="FIT"></a>FIT</h5><p>Flattended Image Tree, 将多个镜像(内核 设备树 ramdisk等)通过dts语法编译生成一个镜像文件<br>its: fit源码文件, 还会包含签名信息<br>itb: fit target<br>its code:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">/dts-v1/;</span><br><span class="line">/ &#123;</span><br><span class="line">    description = &quot;U-Boot FIT source file for arm&quot;;</span><br><span class="line"></span><br><span class="line">    images &#123;</span><br><span class="line">        fdt &#123;</span><br><span class="line">            data = /incbin/(&quot;@KERNEL_DTB@&quot;);</span><br><span class="line">            type = &quot;flat_dt&quot;;</span><br><span class="line">            arch = &quot;arm64&quot;;</span><br><span class="line">            compression = &quot;none&quot;;</span><br><span class="line">            load = &lt;0xffffff00&gt;;</span><br><span class="line"></span><br><span class="line">            hash &#123;</span><br><span class="line">                algo = &quot;sha256&quot;;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        kernel &#123;</span><br><span class="line">            data = /incbin/(&quot;@KERNEL_IMG@&quot;);</span><br><span class="line">            type = &quot;kernel&quot;;</span><br><span class="line">            arch = &quot;arm64&quot;;</span><br><span class="line">            os = &quot;linux&quot;;</span><br><span class="line">            compression = &quot;none&quot;;</span><br><span class="line">            entry = &lt;0xffffff01&gt;;</span><br><span class="line">            load = &lt;0xffffff01&gt;;</span><br><span class="line"></span><br><span class="line">            hash &#123;</span><br><span class="line">                algo = &quot;sha256&quot;;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        resource &#123;</span><br><span class="line">            data = /incbin/(&quot;@RESOURCE_IMG@&quot;);</span><br><span class="line">            type = &quot;multi&quot;;</span><br><span class="line">            arch = &quot;arm64&quot;;</span><br><span class="line">            compression = &quot;none&quot;;</span><br><span class="line"></span><br><span class="line">            hash &#123;</span><br><span class="line">                algo = &quot;sha256&quot;;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    configurations &#123;</span><br><span class="line">        default = &quot;conf&quot;;</span><br><span class="line"></span><br><span class="line">        conf &#123;</span><br><span class="line">            rollback-index = &lt;0x00&gt;;</span><br><span class="line">            fdt = &quot;fdt&quot;;</span><br><span class="line">            kernel = &quot;kernel&quot;;</span><br><span class="line">            multi = &quot;resource&quot;;</span><br><span class="line"></span><br><span class="line">            signature &#123;</span><br><span class="line">                algo = &quot;sha256,rsa2048&quot;;</span><br><span class="line">                padding = &quot;pss&quot;;</span><br><span class="line">                key-name-hint = &quot;dev&quot;;</span><br><span class="line">                sign-images = &quot;fdt&quot;, &quot;kernel&quot;, &quot;multi&quot;;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="stage-2"><a href="#stage-2" class="headerlink" title="stage 2"></a>stage 2</h3><p>TODO</p>
+<h3 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">process_args $* <span class="comment"># 处理参数,这里只传了arm交叉编译链</span></span><br><span class="line">prepare <span class="comment"># 指定rkbin路径, 开启trustzone</span></span><br><span class="line">select_toolchain <span class="comment"># 指定编译链</span></span><br><span class="line">select_chip_info <span class="comment"># 指定芯片信息, 这里是3568</span></span><br><span class="line">fixup_platform_configure </span><br><span class="line">select_ini_file <span class="comment"># 选择配置文件</span></span><br><span class="line">handle_args_late <span class="comment"># 配置加到ARG_LIST_FIT</span></span><br><span class="line">sub_commands <span class="comment"># 编译uboot spl</span></span><br><span class="line">clean_files</span><br><span class="line">make PYTHON=python2 CROSS_COMPILE=<span class="variable">$&#123;TOOLCHAIN&#125;</span> all --<span class="built_in">jobs</span>=<span class="variable">$&#123;JOB&#125;</span></span><br><span class="line">pack_images <span class="comment"># 打包FIT和spl镜像</span></span><br><span class="line">finish</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;TOOLCHAIN&#125;</span></span><br><span class="line"><span class="built_in">date</span></span><br></pre></td></tr></table></figure>
+<p>ini配置如下</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">// rk3568TRUST.ini</span><br><span class="line"><span class="section">[VERSION]</span></span><br><span class="line"><span class="attr">MAJOR</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">MINOR</span>=<span class="number">0</span></span><br><span class="line"><span class="section">[BL30_OPTION]</span></span><br><span class="line"><span class="attr">SEC</span>=<span class="number">0</span></span><br><span class="line"><span class="section">[BL31_OPTION]</span></span><br><span class="line"><span class="attr">SEC</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">PATH</span>=bin/rk35/rk3568_bl31_v1.<span class="number">43</span>.elf</span><br><span class="line"><span class="attr">ADDR</span>=<span class="number">0</span>x00040000</span><br><span class="line"><span class="section">[BL32_OPTION]</span></span><br><span class="line"><span class="attr">SEC</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">PATH</span>=bin/rk35/rk3568_bl32_v2.<span class="number">09</span>.bin</span><br><span class="line"><span class="attr">ADDR</span>=<span class="number">0</span>x08400000</span><br><span class="line"><span class="section">[BL33_OPTION]</span></span><br><span class="line"><span class="attr">SEC</span>=<span class="number">0</span></span><br><span class="line"><span class="section">[OUTPUT]</span></span><br><span class="line"><span class="attr">PATH</span>=trust.img</span><br><span class="line"></span><br><span class="line">// rk3568MINIALL.ini</span><br><span class="line"><span class="section">[CHIP_NAME]</span></span><br><span class="line"><span class="attr">NAME</span>=RK3568</span><br><span class="line"><span class="section">[VERSION]</span></span><br><span class="line"><span class="attr">MAJOR</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">MINOR</span>=<span class="number">1</span></span><br><span class="line"><span class="section">[CODE471_OPTION]</span></span><br><span class="line"><span class="attr">NUM</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">Path1</span>=bin/rk35/rk3568_ddr_1332MHz_v1.<span class="number">16</span>.bin</span><br><span class="line"><span class="attr">Sleep</span>=<span class="number">1</span></span><br><span class="line"><span class="section">[CODE472_OPTION]</span></span><br><span class="line"><span class="attr">NUM</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">Path1</span>=bin/rk35/rk356x_usbplug_v1.<span class="number">17</span>.bin</span><br><span class="line"><span class="section">[LOADER_OPTION]</span></span><br><span class="line"><span class="attr">NUM</span>=<span class="number">2</span></span><br><span class="line"><span class="attr">LOADER1</span>=FlashData</span><br><span class="line"><span class="attr">LOADER2</span>=FlashBoot</span><br><span class="line"><span class="attr">FlashData</span>=bin/rk35/rk3568_ddr_1332MHz_v1.<span class="number">16</span>.bin</span><br><span class="line"><span class="attr">FlashBoot</span>=bin/rk35/rk356x_spl_v1.<span class="number">12</span>.bin</span><br><span class="line"><span class="section">[OUTPUT]</span></span><br><span class="line"><span class="attr">PATH</span>=rk356x_spl_loader_v1.<span class="number">16.112</span>.bin</span><br><span class="line"><span class="section">[SYSTEM]</span></span><br><span class="line"><span class="attr">NEWIDB</span>=<span class="literal">true</span></span><br><span class="line"><span class="section">[FLAG]</span></span><br><span class="line"><span class="attr">471_RC4_OFF</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">RC4_OFF</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>uboot.bin(fit)含:<br>uboot<br>atf-[2~6]<br>optee</p>
 
 <div id="gitalk-container"></div>
 <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
@@ -316,16 +316,11 @@
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2024/10/22/arm-uboot-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          arm uboot(1)
-        </a>
-      
     </div>
     <div>
       
-        <a href="/2024/06/04/rust-multi-1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          rust-multi-1
+        <a href="/2024/09/10/stm32-DMA/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          stm32_DMA
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       
